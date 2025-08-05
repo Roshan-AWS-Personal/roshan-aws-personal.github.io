@@ -1,0 +1,10 @@
+title: Roshan’s AWS Portfolio
+description: A showcase of cloud-native architecture patterns.
+baseurl: ""          # leave empty for root GitHub Pages
+url: "https://<your-username>.github.io"
+
+# Collections (optional, for chapters)
+collections:
+  chapters:
+    output: true
+    permalink: /:collection/:name/
