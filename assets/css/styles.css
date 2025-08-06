@@ -1,0 +1,10 @@
+.site-header {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.site-header h1 a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 2.5rem;
+}
