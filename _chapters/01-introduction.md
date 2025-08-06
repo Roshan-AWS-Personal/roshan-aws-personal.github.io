@@ -12,5 +12,5 @@ In the chapters that follow, we’ll trace the evolution of this project through
 3.	Scalable Data Flows: Migrating from direct Lambda uploads to pre-signed URLs to optimize performance and cost.
 4.	CORS & CDN Strategies: Overcoming cross-domain challenges with CloudFront and precise header management.
 5.	Event-Driven Logging & Notifications: Decoupling workflows with DynamoDB streams and SES alerts.
-Each section details the challenge I encountered, the solution I implemented, and the lesson that solidified my understanding of AWS architectures in professional settings.
+Each section details the challenge I encountered, the solution I implemented, and the lesson that solidified my understanding of AWS architectures in a professional setting.
 
