@@ -40,7 +40,7 @@ variable "environment" {
 }
 ```
 
-## **CI/CD with GitHub Actions: Click-to-Deploy Simplicity**
+## CI/CD with GitHub Actions: Click-to-Deploy Simplicity
 
 Beyond just managing infrastructure definitions, I built a GitHub Actions workflow to tie everything together—transforming manual terminal commands into a polished, click-to-deploy experience:
 
@@ -97,7 +97,7 @@ jobs:
           -var="env=prod"
 ```
 
-## **Why This Matters**
+## Why This Matters
 
 * **Scalability:** As soon as I added Cognito, CloudFront, or SES, I simply dropped in new Terraform modules—no manual console gymnastics.
 * **Collaboration:** My teammates (or future clients) can spin up a full stack in their own AWS accounts.
