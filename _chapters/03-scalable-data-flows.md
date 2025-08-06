@@ -8,7 +8,7 @@ With my CI/CD runners humming and Terraform modules orchestrating everything fro
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/initial-upload-flow.png" alt="Initial File Upload Flow" />
-    <figcaption><strong>**Figure 1.**</strong> Initial File Upload Flow: client → API Gateway → Lambda → S3</figcaption>
+    <figcaption><strong>Figure 1.</strong> Initial File Upload Flow: client → API Gateway → Lambda → S3</figcaption>
   </figure>
 </div>
 
@@ -28,7 +28,7 @@ I toyed briefly with the idea of splitting everything into microservices—one s
 <div align="center">
     <figure>
         <img src="{{ site.baseurl }}/assets/images/presigned-url-flow.png" alt="Pre-Signed URL Upload Flow" />
-        <figcaption><strong>**Figure 2.**</strong> Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
+        <figcaption><strong>Figure 2. </strong> Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
     </figure>
 </div>
 
