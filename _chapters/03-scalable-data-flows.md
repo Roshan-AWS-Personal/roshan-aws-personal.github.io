@@ -1,17 +1,17 @@
 ---
 layout: default
+title: "Scalable Data Flows: Balancing Simplicity and Scalability"
 ---
 -----------------------------
-## Scalable Data Flows: Balancing Simplicity and Scalability
-
 With my CI/CD runners humming and Terraform modules orchestrating everything from S3 buckets to API Gateway, I set out to implement the most straightforward upload pipeline I could imagine: client → API Gateway → Lambda → S3. In development, this flow felt almost magical—one commit, one click in GitHub Actions, and I could watch a fresh S3 bucket appear in the console complete with IAM policies, CORS rules, and a working Lambda ready to accept file payloads. Switching between dev and prod was as trivial as choosing a different environment in the workflow inputs and watching Terraform seamlessly apply the right state.
 
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/initial-upload-flow.png" alt="Initial File Upload Flow" />
-    <figcaption><strong>Figure 1.</strong> Initial File Upload Flow: client → API Gateway → Lambda → S3</figcaption>
+    <figcaption><strong>**Figure 1.**</strong> Initial File Upload Flow: client → API Gateway → Lambda → S3</figcaption>
   </figure>
 </div>
+
 
 
 
@@ -28,7 +28,7 @@ I toyed briefly with the idea of splitting everything into microservices—one s
 <div align="center">
     <figure>
         <img src="{{ site.baseurl }}/assets/images/presigned-url-flow.png" alt="Pre-Signed URL Upload Flow" />
-        <figcaption>**Figure 2.** Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
+        <figcaption><strong>**Figure 2.**</strong> Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
     </figure>
 </div>
 
