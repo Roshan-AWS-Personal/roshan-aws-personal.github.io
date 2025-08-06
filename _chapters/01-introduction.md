@@ -14,3 +14,4 @@ In the chapters that follow, we’ll trace the evolution of this project through
 5.	Event-Driven Logging & Notifications: Decoupling workflows with DynamoDB streams and SES alerts.
 Each section details the challenge I encountered, the solution I implemented, and the lesson that solidified my understanding of AWS architectures in a professional setting.
 
+-----------------------------
