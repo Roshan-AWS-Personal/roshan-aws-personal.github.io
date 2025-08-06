@@ -67,5 +67,4 @@ Of course, this pattern isn’t without its trade‑offs. Clients now implement 
 
 Looking at the result, I can see it’s still a relatively cohesive service rather than a full microservices ecosystem. All upload-related concerns remain within a narrow boundary: URL generation, file ingestion, and metadata logging. That tight coupling actually serves simplicity—there’s no distributed saga or queue choreography to debug. In future iterations, I could extract the logger into an event bus or introduce image processing pipelines, but for this portfolio piece, I chose clarity and demonstrable best practices over building every conceivable component.
 
-### Key Takeaway: Start with the simplest design that will teach you something meaningful, then refactor toward scalability where it truly matters. In this case, pre-signed URLs delivered an outsized benefit by decoupling heavy data movement from compute, while preserving the clear, event-driven patterns fundamental to maintainable serverless architectures.
 -----------------------------
