@@ -1,3 +1,8 @@
+---
+layout: default
+title: Introduction
+---
+
 ## Scalable Data Flows: Balancing Simplicity and Scalability
 
 With my CI/CD runners humming and Terraform modules orchestrating everything from S3 buckets to API Gateway, I set out to implement the most straightforward upload pipeline I could imagine: client → API Gateway → Lambda → S3. In development, this flow felt almost magical—one commit, one click in GitHub Actions, and I could watch a fresh S3 bucket appear in the console complete with IAM policies, CORS rules, and a working Lambda ready to accept file payloads. Switching between dev and prod was as trivial as choosing a different environment in the workflow inputs and watching Terraform seamlessly apply the right state.
@@ -16,6 +21,18 @@ I toyed briefly with the idea of splitting everything into microservices—one s
 
 Instead of handling binary data in Lambda, I introduced a lightweight endpoint whose sole purpose was to generate pre-signed `PUT` URLs:
 
+```python
+# Generate a 5-minute pre-signed PUT URL for S3
+presigned_url = s3.generate_presigned_url(
+    ClientMethod='put_object',
+    Params={
+        'Bucket': BUCKET_NAME,
+        'Key': key,
+        'ContentType': content_type
+    },
+    ExpiresIn=300
+)
+```
 1. **Generate URL:** The client sends a small request (`filename`, `contentType`) to `/generate-upload-url`.
 2. **Validate & Sign:** A focused Lambda checks user permissions, inspects or sanitizes `filename`, and calls S3’s `getSignedUrl('putObject')` with a short expiration window.
 3. **Direct Upload:** The client uploads the file bytes straight to S3 using the returned URL—bypassing Lambda.
