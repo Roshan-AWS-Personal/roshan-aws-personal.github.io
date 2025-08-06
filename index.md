@@ -13,5 +13,5 @@ layout: default
 ---
 
 {% for chap in site.chapters %}
-{{ chap.content | markdownify }}
+  {{ chap.content | markdownify }}
 {% endfor %}
