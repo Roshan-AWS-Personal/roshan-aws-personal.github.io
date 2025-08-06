@@ -13,5 +13,8 @@ layout: default
 ---
 
 {% for chap in site.chapters %}
-  {{ chap.content | markdownify }}
+<a id="{{ chap.slug }}"></a>
+## **{{ chap.title }}**
+
+{{ chap.content | markdownify }}
 {% endfor %}
