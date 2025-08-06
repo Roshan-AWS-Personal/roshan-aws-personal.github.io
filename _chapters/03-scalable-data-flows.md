@@ -13,6 +13,8 @@ With my CI/CD runners humming and Terraform modules orchestrating everything fro
   </figure>
 </div>
 
+
+
 Yet, once the prototype was in place, I began to ask tougher questions: what happens when a user uploads a 50 MB video? How would sudden spikes in traffic affect my Lambdas? Is my function ever going to timeout or run out of memory? And beyond raw performance, what visibility did I have into each uploaded file’s size, type, or provenance?
 
 I realized that in this initial design, every byte of every upload passed through my Lambda—tightly coupling data processing with business logic. This approach delivered centralized validation (I could inspect each payload and reject disallowed file types), but it also introduced serious limitations:
@@ -29,6 +31,8 @@ I toyed briefly with the idea of splitting everything into microservices—one s
         <figcaption>**Figure 2.** Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
     </figure>
 </div>
+
+
 
 ### Embracing Pre-Signed URLs
 
