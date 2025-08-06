@@ -6,11 +6,11 @@ layout: default
 
 When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. Sure, it meant less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
 
-**“Dev” vs. “Prod”: My Enterprise Mindset**
+**“Dev” vs. “Prod”: Separate your Playgrounds**
 
 In real-world teams, you never build production features in the same sandbox where you’re experimenting. I wanted to adopt that same discipline: a clean **dev** playground where I could tinker and break things, and a locked-down **prod** environment for anything user-facing. The console alone made this an error-prone nightmare: manual clicks here, copy-and-paste there, and suddenly your “dev” bucket has production data—or vice versa.
 
-## **Enter Terraform: My Professional Edge**
+### **Enter Terraform**
 
 So I shifted gears and embraced Terraform for everything:
 
