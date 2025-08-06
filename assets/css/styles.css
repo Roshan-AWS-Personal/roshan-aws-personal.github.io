@@ -8,3 +8,10 @@
   font-size: 2.5rem;
   /* Optional: adjust color, font-weight, etc. */
 }
+
+/* Make all section titles bigger */
+.content h2 {
+  font-size: 2.5rem;    /* adjust this value as you like */
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
