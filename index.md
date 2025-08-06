@@ -1,9 +1,6 @@
 ---
 layout: default
-title: Home
 ---
-
-# Roshan’s AWS Portfolio
 
 ## Table of Contents
 - [Introduction](#introduction)  

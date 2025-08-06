@@ -1,15 +1,8 @@
 ---
 layout: default
-title: Infrastructure as Code
+title: Infrastructure as Code: From Clicks to Code
 ---
-
----
-
-layout: default
-title: Infrastructure as Code
 -----------------------------
-
-## **Infrastructure as Code: From Clicks to Code — A Personal Journey**
 
 When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. Sure, it meant less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
 
@@ -25,11 +18,11 @@ So I shifted gears and embraced Terraform for everything:
 * **Environment Swaps in a Snap:** By parameterizing with workspaces (or different state backends), I can point the same code at a dev account one moment and a prod account the next—just by changing a GitHub Action variable.
 * **Git-Driven Confidence:** All changes go through pull requests. I get a `terraform plan` preview automatically, so I can peer-review infrastructure like I review code.
 * **Secure Secrets Handling:** Access keys, bucket names, and Cognito client IDs live in GitHub Secrets—never hardcoded. Onboarding a new collaborator is as simple as granting them repo-level secrets access, not IAM creds.
-* **Repeatability & Disaster Recovery:** Destroying and re-creating an environment is as easy as:
-
+* **Repeatability & Disaster Recovery:** Destroying and re-creating an environment is as easy as 
 ```bash
 terraform destroy && terraform apply
 ```
+
 
 No more accidental cloud sprawl or “how-did-that-thing-get-created?” mysteries.
 
