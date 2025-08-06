@@ -7,4 +7,3 @@ url: "https://roshan-aws-personal.github.io"
 collections:
   chapters:
     output: true
-    permalink: /:collection/:name/
