@@ -15,43 +15,9 @@ title: Home
 
 ---
 
-<a id="introduction"></a>
-## **Introduction**
+{% for chap in site.chapters %}
+<a id="{{ chap.slug }}"></a>
+## **{{ chap.title }}**
 
-{% include_relative _chapters/01-introduction.md %}
-
----
-
-<a id="infrastructure-as-code"></a>
-## **Infrastructure as Code**
-
-{% include_relative _chapters/02-infrastructure-as-code.md %}
-
----
-
-<a id="authentication--security"></a>
-## **Authentication & Security**
-
-*Your Cognito OAuth2 narrative…*
-
----
-
-<a id="scalable-data-flows"></a>
-## **Scalable Data Flows**
-
-*Your pre-signed URL story…*
-
----
-
-<a id="cors--cdn-configuration"></a>
-## **CORS & CDN Configuration**
-
-*Your CloudFront/CORS pain & fixes…*
-
----
-
-<a id="event-driven-logging--notifications"></a>
-## **Event-Driven Logging & Notifications**
-
-*Your DynamoDB/SES async logging section…*
-
+{{ chap.content | markdownify }}
+{% endfor %}
