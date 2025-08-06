@@ -1,11 +1,16 @@
 ---
 layout: default
-title: Introduction
+title: "Scalable Data Flows: Balancing Simplicity and Scalability"
 ---
-
+-----------------------------
 ## Scalable Data Flows: Balancing Simplicity and Scalability
 
 With my CI/CD runners humming and Terraform modules orchestrating everything from S3 buckets to API Gateway, I set out to implement the most straightforward upload pipeline I could imagine: client → API Gateway → Lambda → S3. In development, this flow felt almost magical—one commit, one click in GitHub Actions, and I could watch a fresh S3 bucket appear in the console complete with IAM policies, CORS rules, and a working Lambda ready to accept file payloads. Switching between dev and prod was as trivial as choosing a different environment in the workflow inputs and watching Terraform seamlessly apply the right state.
+
+<figure>
+  <img src="{{ site.baseurl }}/assets/images/initial-upload-flow.png" alt="Initial File Upload Flow" />
+  <figcaption>**Figure 1.** Initial File Upload Flow: client → API Gateway → Lambda → S3</figcaption>
+</figure>
 
 Yet, once the prototype was in place, I began to ask tougher questions: what happens when a user uploads a 50 MB video? How would sudden spikes in traffic affect my Lambdas? Is my function ever going to timeout or run out of memory? And beyond raw performance, what visibility did I have into each uploaded file’s size, type, or provenance?
 
@@ -16,6 +21,11 @@ I realized that in this initial design, every byte of every upload passed throug
 * **Scaling Synergy:** While Lambda itself scales horizontally, high concurrency during big-file bursts could exhaust account-level limits.
 
 I toyed briefly with the idea of splitting everything into microservices—one service for validation, another for upload orchestration, and yet another for metadata logging—but that would introduce distributed tracing, message queues, and more operational overhead. For now, I chose a middle path: offload the heavy lifting to S3 while maintaining a clear, event-driven pattern.
+
+<figure>
+  <img src="{{ site.baseurl }}/assets/images/presigned-url-flow.png" alt="Pre-Signed URL Upload Flow" />
+  <figcaption>**Figure 2.** Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
+</figure>
 
 ### Embracing Pre-Signed URLs
 

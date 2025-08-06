@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Infrastructure as Code: From Clicks to Code
+title: "Infrastructure as Code: From Clicks to Code"
 ---
 -----------------------------
 
