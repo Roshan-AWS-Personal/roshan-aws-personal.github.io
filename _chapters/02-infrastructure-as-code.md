@@ -1,8 +1,8 @@
 ---
 layout: default
-title: "Infrastructure as Code: From Clicks to Code"
 ---
 -----------------------------
+## Infrastructure as Code: From Clicks to Code
 
 When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. Sure, it meant less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
 
@@ -106,4 +106,6 @@ jobs:
 * **Auditability:** I can trace exactly *when* and *why* a resource changed by looking at the Terraform state and Git history.
 
 This IaC + CI/CD foundation set the stage for every other layer of the project—authentication flows, event-driven logging, CORS strategies, and more. With it in place, I could focus on building features, confident that my infrastructure would remain consistent, reproducible, and secure.
+
+
 
