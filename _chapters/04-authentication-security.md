@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Authentication & Security"
+title: "Authentication & Security: From Static Tokens to Cognito OAuth2"
 ---
 
 When I first added security to the file-upload API, I reached for the simplest mechanism: a static API key passed as an `X-API-KEY` header. My Lambda function would read this header, compare it to a hardcoded value, and allow or deny uploads. It was quick to implement but posed several problems:
@@ -8,7 +8,7 @@ When I first added security to the file-upload API, I reached for the simplest m
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/initial-security-flow.png" alt="Initial Security Flow" />
-    <figcaption><strong>Figure 1.</strong> Basic Authentication Flow: X-API-KEY → API Gateway → Lambda → S3</figcaption>
+    <figcaption><strong>Figure 3.</strong> Basic Authentication Flow: X-API-KEY → API Gateway → Lambda → S3</figcaption>
   </figure>
 </div>
 
@@ -23,7 +23,7 @@ To solve these issues, I migrated to Amazon Cognito User Pools and adopted the O
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/cognito-oauth2-flow.png" alt="Cognito OAuth2.0 Flow Flow" />
-    <figcaption><strong>Figure 2.</strong> Cognito OAuth2 Flow: /authorize → Cognito User Pool → /token → JWT → API Gateway (Cognito Authorizer) → Lambda → S3</figcaption>
+    <figcaption><strong>Figure 4.</strong> Cognito OAuth2 Flow: /authorize → Cognito User Pool → /token → JWT → API Gateway (Cognito Authorizer) → Lambda → S3</figcaption>
   </figure>
 </div>
 
@@ -50,3 +50,5 @@ To solve these issues, I migrated to Amazon Cognito User Pools and adopted the O
 - **Graceful Migrations Matter:** A fallback path lets you roll out new auth without breaking existing clients.
 
 By evolving from a naïve API-key model to a full Cognito OAuth2 flow, I hardened the API and embraced patterns critical for production-grade, user-centric applications.
+
+---------------
