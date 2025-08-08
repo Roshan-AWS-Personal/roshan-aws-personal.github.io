@@ -2,16 +2,22 @@
 layout: default
 title: "CORS & CDN Configuration: Taming CloudFront and Cross-Origin Hurdles"
 ---
-Once the upload flows and security layers were in place, I layered Amazon CloudFront on top of both my static S3 site and the API Gateway endpoints. While a CDN promised lower latency, built-in WAF integration, and global edge coverage, it immediately introduced subtle cross-origin and caching quirks.
+
+Once the upload flows and security layers were in place, I introduced Amazon CloudFront in front of both my static S3 site and the API Gateway endpoints.  
+The CDN promised lower latency, built-in WAF integration, and global edge coverage — but it also brought subtle cross-origin (CORS) and caching quirks that quickly surfaced in production.
+
+---
 
 ### 1. Initial CloudFront Setup
 
 I provisioned a single CloudFront distribution with two origins:
 
 - **Static Origin** → S3 bucket serving the UI  
-- **API Origin**    → API Gateway for `/api/*`  
+- **API Origin** → API Gateway for `/api/*`  
 
-By default, CloudFront only forwarded a minimal set of headers (`Host`, `User-Agent`, etc.) and cached aggressively (TTL = 24h). On the S3 side, I had a permissive CORS policy allowing `GET, HEAD` from `https://my-portfolio.example.com`; API Gateway was configured to respond to CORS preflight for `POST` requests.
+By default, CloudFront forwarded only a minimal set of headers (`Host`, `User-Agent`, etc.) and cached responses aggressively (TTL = 24h).  
+On the S3 side, the CORS policy allowed `GET, HEAD` from `https://my-portfolio.example.com`.  
+API Gateway responded to CORS preflights for `POST` requests.
 
 <div align="center">
     <figure class="figure-center">
@@ -20,23 +26,33 @@ By default, CloudFront only forwarded a minimal set of headers (`Host`, `User-Ag
     </figure>
 </div>
 
-### 2. The First Failures
-Almost immediately, real-world clients hit errors:
+---
+
+### 2. Early Failures
+
+Once live, real clients began hitting problems:
 
 1. **Stale Preflight Caching**  
-   Browsers send an `OPTIONS` preflight → CloudFront caches the response **without** `Access-Control-Allow-Origin`, so subsequent `POST` and `PUT` calls from the browser were blocked.
+   Browsers sent an `OPTIONS` preflight request. CloudFront cached the response **without** `Access-Control-Allow-Origin`, so subsequent `POST` and `PUT` calls failed.
 
-2. **Missing `Authorization`**  
-   CloudFront stripped the `Authorization` header on requests to API Gateway. All JWT-based calls (after moving to Cognito) returned 401s.
+2. **Missing `Authorization` Header**  
+   CloudFront stripped the `Authorization` header for API Gateway requests, breaking JWT-protected endpoints after Cognito integration.
 
 3. **Lingering Edge Config**  
-   Even after updating S3’s CORS rules and API Gateway’s preflight settings, the old 403 responses lived at edge locations for hours—breaking functionality long after the “fix” was live.
+   Updated S3 CORS rules and API Gateway preflight settings took hours to propagate because outdated 403 responses were cached at edge locations.
+
+---
 
 ### 3. Iterative Fixes
 
-I tackled each failure in turn:
+<div align="center">
+    <figure class="figure-center">
+    <img src="{{ site.baseurl }}/assets/images/refined-cache-behaviors-flow.png" alt="Refined CloudFront Setup" />
+    <figcaption><strong>Figure 6.</strong> Refined CloudFront cache behavior.</figcaption>
+    </figure>
+</div>
 
-#### a. Custom Cache Behaviors
+#### a) Custom Cache Behaviors
 
 ```hcl
 resource "aws_cloudfront_distribution" "cdn" {
@@ -53,11 +69,13 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   default_cache_behavior {
-    target_origin_id = "S3-Static"
+    target_origin_id       = "S3-Static"
     viewer_protocol_policy = "redirect-to-https"
-    # forward all headers required by SPA and Cognito
-    allowed_methods        = ["GET","HEAD","OPTIONS"]
-    cached_methods         = ["GET","HEAD"]
+
+    # Forward headers required by SPA and Cognito
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+
     forwarded_values {
       query_string = false
       headers      = ["Origin"]
@@ -66,26 +84,31 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   ordered_cache_behavior {
-    path_pattern = "/api/*"
-    target_origin_id = "API-Gateway"
+    path_pattern          = "/api/*"
+    target_origin_id      = "API-Gateway"
     viewer_protocol_policy = "https-only"
-    allowed_methods        = ["GET","HEAD","OPTIONS","POST","PUT"]
-    cached_methods         = ["GET","HEAD"]
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+
     forwarded_values {
       query_string = false
-      headers      = ["Authorization","Content-Type","Origin"]
+      headers      = ["Authorization", "Content-Type", "Origin"]
     }
     min_ttl = 0
   }
 }
-
 ```
 
-- **Separate behaviors for static vs API paths**
-- **Forward Origin (for CORS) and Authorization (for JWT)**
-- **Minimize TTL on OPTIONS so each preflight hits the origin**
+**Key points:**
+- Isolated cache behaviors for static vs API paths  
+- Explicitly forwarded `Origin` (for CORS) and `Authorization` (for JWT)  
+- Set `min_ttl` to `0` for `OPTIONS` to force fresh preflight checks  
+
+---
 
 #### b) Enhanced S3 CORS Policy
+
 ```xml
 <CORSConfiguration>
   <CORSRule>
@@ -98,12 +121,16 @@ resource "aws_cloudfront_distribution" "cdn" {
     <MaxAgeSeconds>3000</MaxAgeSeconds>
   </CORSRule>
 </CORSConfiguration>
-
 ```
 
-- **Added OPTIONS and PUT**
-- **Allowed all headers (*)**
-- **Increased MaxAgeSeconds to reduce preflight frequency**
+**Key points:**
+- Added `OPTIONS` and `PUT`  
+- Allowed all headers (`*`)  
+- Increased `MaxAgeSeconds` to reduce preflight frequency  
+
+---
+
+#### c) Cache Invalidation
 
 ```yaml
 - name: Invalidate CloudFront Cache
@@ -113,22 +140,17 @@ resource "aws_cloudfront_distribution" "cdn" {
       --paths "/*"
 ```
 
-This ensured any behavior or CORS policy change propagated immediately to every edge location.
+**Key point:**  
+Automated invalidations ensure behavior and CORS changes take effect immediately across all edge locations.
 
-<div align="center">
-    <figure class="figure-center">
-    <img src="{{ site.baseurl }}/assets/images/refined-cache-behaviors-flow.png" alt="Refined CloudFront Setup" />
-    <figcaption><strong>Figure 6.</strong> Refined Cloudfront cache behavior.</figcaption>
-    </figure>
-</div>
+---
 
 ### 4. Key Takeaways
-- **Behavior-Level Precision:** When fronting APIs, default caching is rarely enough—you must explicitly forward every header your auth/CORS relies on.
 
-- **End-to-End CORS Design:** Browser → CDN → API → Lambda. Every hop must agree on allowed origins, methods, and headers.
+- **Behavior-Level Precision:** Default caching rarely suits API traffic — explicitly forward every header used by authentication and CORS.  
+- **End-to-End CORS Design:** Browser → CDN → API → Lambda — each layer must agree on allowed origins, methods, and headers.  
+- **Invalidate Aggressively:** Edge caches can hide fixes; automate invalidations in your CI/CD pipeline.  
 
-- **Invalidation is Non-Optional:** Cache lifetimes at the edge can hide fixes; automate invalidations in your CI/CD.
+With these refinements, my static site and API now serve reliably from the edge, complete with robust CORS support and secure, dynamic authorization flows.
 
-With these refinements, my static site and API now deliver reliably from the edge—complete with robust CORS support and dynamic authorization flows. In the final chapter, we’ll examine how I decoupled logging and notifications into an event-driven pipeline using DynamoDB and SES.
-
----------------------------------------
+In the next chapter, I’ll cover how I decoupled logging and notifications into an event-driven pipeline using DynamoDB and SES.
