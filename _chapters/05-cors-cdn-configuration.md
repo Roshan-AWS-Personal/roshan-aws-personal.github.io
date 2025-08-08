@@ -15,12 +15,12 @@ By default, CloudFront only forwarded a minimal set of headers (`Host`, `User-Ag
 
 <div align="center">
     <figure class="figure-center">
-    <img src="{{ site.baseurl }}/assets/images/cloudfront-initial.png" alt="Initial CloudFront Setup" />
+    <img src="{{ site.baseurl }}/assets/images/initial-cloudfront.png" alt="Initial CloudFront Setup" />
     <figcaption><strong>Figure 5.</strong> Initial CloudFront distribution with two origins (S3 & API) and default behaviors.</figcaption>
     </figure>
 </div>
-### 2. The First Failures
 
+### 2. The First Failures
 Almost immediately, real-world clients hit errors:
 
 1. **Stale Preflight Caching**  
@@ -81,9 +81,9 @@ resource "aws_cloudfront_distribution" "cdn" {
 
 ```
 
-- Separate behaviors for static vs API paths
-- Forward Origin (for CORS) and Authorization (for JWT)
-- Minimize TTL on OPTIONS so each preflight hits the origin
+- **Separate behaviors for static vs API paths**
+- **Forward Origin (for CORS) and Authorization (for JWT)**
+- **Minimize TTL on OPTIONS so each preflight hits the origin**
 
 #### b) Enhanced S3 CORS Policy
 ```xml
@@ -101,9 +101,9 @@ resource "aws_cloudfront_distribution" "cdn" {
 
 ```
 
-- Added OPTIONS and PUT
-- Allowed all headers (*)
-- Increased MaxAgeSeconds to reduce preflight frequency
+- **Added OPTIONS and PUT**
+- **Allowed all headers (*)**
+- **Increased MaxAgeSeconds to reduce preflight frequency**
 
 ```yaml
 - name: Invalidate CloudFront Cache
@@ -123,11 +123,11 @@ This ensured any behavior or CORS policy change propagated immediately to every 
 </div>
 
 ### 4. Key Takeaways
-- Behavior-Level Precision: When fronting APIs, default caching is rarely enough—you must explicitly forward every header your auth/CORS relies on.
+- **Behavior-Level Precision:** When fronting APIs, default caching is rarely enough—you must explicitly forward every header your auth/CORS relies on.
 
-- End-to-End CORS Design: Browser → CDN → API → Lambda. Every hop must agree on allowed origins, methods, and headers.
+- **End-to-End CORS Design:** Browser → CDN → API → Lambda. Every hop must agree on allowed origins, methods, and headers.
 
-- Invalidation is Non-Optional: Cache lifetimes at the edge can hide fixes; automate invalidations in your CI/CD.
+- **Invalidation is Non-Optional:** Cache lifetimes at the edge can hide fixes; automate invalidations in your CI/CD.
 
 With these refinements, my static site and API now deliver reliably from the edge—complete with robust CORS support and dynamic authorization flows. In the final chapter, we’ll examine how I decoupled logging and notifications into an event-driven pipeline using DynamoDB and SES.
 
