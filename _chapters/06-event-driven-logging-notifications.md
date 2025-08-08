@@ -15,8 +15,6 @@ Sure, files were landing in the bucket, but unless I went digging in the console
 
 In other words — my system was functional, but it wasn’t _talking back_ to me.
 
----
-
 ### Designing the Event-Driven Layer
 
 I wanted something lightweight, automated, and decoupled from the upload path — a setup where uploads could happen at full speed, but the moment an object hit S3, my system would quietly log it and (optionally) ping me. That meant one obvious AWS tool: **S3 Event Notifications**.
@@ -33,8 +31,6 @@ The idea:
         <figcaption><strong>Figure 7.</strong> S3 Event-Driven Logging & Notifications</figcaption>
     </figure>
 </div>
-
----
 
 ### Implementation
 
@@ -72,8 +68,6 @@ def handler(event, context):
 
 The beauty of this setup is that uploads keep flowing exactly as before — the logging happens entirely on the side, without slowing down the client.
 
----
-
 ### Why This Matters
 
 This layer gave me:
@@ -81,7 +75,6 @@ This layer gave me:
 - **Proactive Awareness:** SES can nudge me when something unusual happens — a huge file, a suspicious user, or a specific file type.  
 - **Future-Proofing:** That metadata table could power an admin dashboard, usage reports, or automated workflows without touching the upload pipeline.
 
----
 
 ### Trade-Offs and Lessons
 

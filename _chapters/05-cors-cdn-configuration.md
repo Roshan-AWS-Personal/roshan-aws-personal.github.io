@@ -26,8 +26,6 @@ By default, CloudFront only forwarded a handful of headers (`Host`, `User-Agent`
 
 In dev, it seemed fine. In prod? That’s when the cracks started showing.
 
----
-
 ### 2. The First Failures
 
 Within hours, real users were hitting strange errors:
@@ -36,8 +34,6 @@ Within hours, real users were hitting strange errors:
 3. **Lingering Edge Config** — Even after I fixed CORS rules in S3 and API Gateway, the old bad responses lived at edge locations for hours.
 
 It was one of those moments where you think: _“Everything works perfectly… except in reality.”_
-
----
 
 ### 3. Iterative Fixes
 
@@ -92,13 +88,12 @@ resource "aws_cloudfront_distribution" "cdn" {
     min_ttl = 0
   }
 }
+
 ```
 Key takeaways from this change:  
 - **Separate cache behaviors** for UI vs API  
 - Forwarded `Origin` (for CORS) and `Authorization` (for JWT) explicitly  
 - Set `min_ttl` to 0 on `OPTIONS` so preflight checks always reach the origin
-
----
 
 **b) Enhanced S3 CORS Policy**  
 Once CloudFront was behaving, I tightened up S3’s CORS rules to fully support direct uploads and preflights:
@@ -118,8 +113,6 @@ Once CloudFront was behaving, I tightened up S3’s CORS rules to fully support 
 ```
 Changes here: added `OPTIONS` and `PUT`, allowed all headers, and increased `MaxAgeSeconds` to reduce unnecessary preflight chatter.
 
----
-
 **c) Cache Invalidation**  
 The final piece was making sure fixes didn’t take hours to show up:
 
@@ -132,7 +125,6 @@ The final piece was making sure fixes didn’t take hours to show up:
 ```
 Now, any behavior or CORS tweak gets pushed instantly to every edge location.
 
----
 
 ### 4. Lessons Learned
 
@@ -142,3 +134,5 @@ If I had to distill this round of problem-solving:
 - **Invalidate Aggressively** — Stale edge caches will hide your fixes and drive you mad.  
 
 With these refinements, the CDN now delivers both my static site and API without breaking CORS or dropping auth headers. And next time I layer CloudFront in front of an API? I’ll remember that “just pointing it at the origin” is only the start of the journey.
+
+-----------------------------
