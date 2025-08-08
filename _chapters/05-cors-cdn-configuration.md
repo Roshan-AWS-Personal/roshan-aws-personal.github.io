@@ -2,10 +2,7 @@
 layout: default
 title: "CORS & CDN Configuration: Taming CloudFront and Cross-Origin Hurdles"
 ---
-
 Once the upload flows and security layers were in place, I layered Amazon CloudFront on top of both my static S3 site and the API Gateway endpoints. While a CDN promised lower latency, built-in WAF integration, and global edge coverage, it immediately introduced subtle cross-origin and caching quirks.
-
----
 
 ### 1. Initial CloudFront Setup
 
@@ -16,13 +13,12 @@ I provisioned a single CloudFront distribution with two origins:
 
 By default, CloudFront only forwarded a minimal set of headers (`Host`, `User-Agent`, etc.) and cached aggressively (TTL = 24h). On the S3 side, I had a permissive CORS policy allowing `GET, HEAD` from `https://my-portfolio.example.com`; API Gateway was configured to respond to CORS preflight for `POST` requests.
 
-<figure class="figure-center">
-  <img src="{{ site.baseurl }}/assets/images/cloudfront-initial.png" alt="Initial CloudFront Setup" />
-  <figcaption><strong>Figure 5.</strong> Initial CloudFront distribution with two origins (S3 & API) and default behaviors.</figcaption>
-</figure>
-
----
-
+<div align="center">
+    <figure class="figure-center">
+    <img src="{{ site.baseurl }}/assets/images/cloudfront-initial.png" alt="Initial CloudFront Setup" />
+    <figcaption><strong>Figure 5.</strong> Initial CloudFront distribution with two origins (S3 & API) and default behaviors.</figcaption>
+    </figure>
+</div>
 ### 2. The First Failures
 
 Almost immediately, real-world clients hit errors:
@@ -35,8 +31,6 @@ Almost immediately, real-world clients hit errors:
 
 3. **Lingering Edge Config**  
    Even after updating S3’s CORS rules and API Gateway’s preflight settings, the old 403 responses lived at edge locations for hours—breaking functionality long after the “fix” was live.
-
----
 
 ### 3. Iterative Fixes
 
@@ -121,10 +115,12 @@ resource "aws_cloudfront_distribution" "cdn" {
 
 This ensured any behavior or CORS policy change propagated immediately to every edge location.
 
-<figure class="figure-center">
-  <img src="{{ site.baseurl }}/assets/images/refined-cache-behaviors-flow.png" alt="Refined CloudFront Setup" />
-  <figcaption><strong>Figure 6.</strong> Refined Cloudfront cache behavior.</figcaption>
-</figure>
+<div align="center">
+    <figure class="figure-center">
+    <img src="{{ site.baseurl }}/assets/images/refined-cache-behaviors-flow.png" alt="Refined CloudFront Setup" />
+    <figcaption><strong>Figure 6.</strong> Refined Cloudfront cache behavior.</figcaption>
+    </figure>
+</div>
 
 ### 4. Key Takeaways
 - Behavior-Level Precision: When fronting APIs, default caching is rarely enough—you must explicitly forward every header your auth/CORS relies on.
