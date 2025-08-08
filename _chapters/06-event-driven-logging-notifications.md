@@ -81,3 +81,5 @@ This layer gave me:
 The biggest decision was keeping logging **post-upload** rather than validating in real time. That means a bad file might hit the bucket before I flag it — but for my current needs, the scalability and simplicity were worth it. If I needed stronger enforcement, I could still combine this with pre-upload checks.
 
 Next time, I’ll probably feed this into an SNS topic or EventBridge bus so other services can subscribe without me wiring them directly. But for now, DynamoDB + SES was simple win I wanted.
+
+-----------------

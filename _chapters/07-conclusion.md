@@ -18,15 +18,11 @@ This project forced me to slow down and think not just about features, but about
 
 It’s funny — I didn’t set out to “learn CloudFront deeply” or “get better at DynamoDB modeling” when I started. But each bump in the road pulled me into those areas. By the end, I wasn’t just shipping files to a bucket; I was shipping them through a pipeline I could **trust**, **scale**, and **extend**.
 
----
-
 ### What I’d do next
 If I had another sprint, I’d:
 - Build an admin dashboard powered by that DynamoDB metadata.
 - Add optional processing pipelines — image resizing, document parsing — triggered off the same S3 events.
 - Wrap more of the configuration (domains, branding, email targets) into a client-friendly deployment template.
-
----
 
 This project is now something I can hand to a small business, a client, or an interviewer and say:  
 **Here’s proof I can design, build, and evolve a production-grade system — and tell the story of how it came to life.**  
