@@ -34,7 +34,7 @@ Once live, clients began hitting problems:
 </div>
 To resolve these, I implemented targeted cache behaviors, enhanced CORS rules, and automated invalidations.
 
-**a) Custom Cache Behaviors**
+#### a) Custom Cache Behaviors
 ```hcl
 resource "aws_cloudfront_distribution" "cdn" {
   # … other config …
@@ -62,8 +62,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   ordered_cache_behavior {
-    path_pattern          = "/api/*"
-    target_origin_id      = "API-Gateway"
+    path_pattern           = "/api/*"
+    target_origin_id       = "API-Gateway"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "POST", "PUT"]
     cached_methods         = ["GET", "HEAD"]
@@ -75,9 +75,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 }
 ```
-**Key points:** separate cache behaviors for static vs API paths, forward `Origin` (CORS) and `Authorization` (JWT), and set `min_ttl` to 0 on `OPTIONS` so every preflight hits the origin.
 
-**b) Enhanced S3 CORS Policy**
+#### b) Enhanced S3 CORS Policy
 ```xml
 <CORSConfiguration>
   <CORSRule>
@@ -91,9 +90,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   </CORSRule>
 </CORSConfiguration>
 ```
-**Key points:** added `OPTIONS` and `PUT`, allowed all headers (`*`), and increased `MaxAgeSeconds` to reduce preflight frequency.
 
-**c) Cache Invalidation**
+#### c) Cache Invalidation
 ```yaml
 - name: Invalidate CloudFront Cache
   run: |
@@ -101,11 +99,14 @@ resource "aws_cloudfront_distribution" "cdn" {
       --distribution-id ${{ secrets.CF_DIST_ID }} \
       --paths "/*"
 ```
-**Key point:** automated invalidations ensured CORS and behavior changes took effect immediately at all edge locations.
 
-### 4. Key Takeaways
-- **Behavior-Level Precision:** Explicitly forward every header required by authentication and CORS.  
-- **End-to-End CORS Design:** Browser → CDN → API → Lambda — all layers must align on origins, methods, and headers.  
-- **Automated Invalidations:** Prevent stale edge caches from hiding fixes.
+---
 
-With these changes, my static site and API deliver reliably from the edge, with robust CORS support and secure, dynamic authorization flows.
+### Key Points & Takeaways
+- Separate cache behaviors for static vs API paths.
+- Forward `Origin` (for CORS) and `Authorization` (for JWT) headers explicitly.
+- Set `min_ttl` to `0` on `OPTIONS` so every preflight request hits the origin.
+- Added `OPTIONS` and `PUT` to the S3 CORS policy.
+- Allowed all headers (`*`) in S3 CORS rules.
+- Increased `MaxAgeSeconds` to reduce the frequency of preflight requests.
+- Automated CloudFront invalidations so CORS and behavior changes propagate instantly to all edge locations.
