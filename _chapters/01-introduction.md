@@ -3,7 +3,7 @@ layout: default
 title: Introduction
 ---
 
-Hello and welcome to my first project! This page is the first tangible demonstration of applying my software engineering experience to my newly earned AWS Solutions Architect skills. What started as a simple file-upload API—just a Lambda writing to S3—grew into a production-minded template you can brand for a client and ship.
+Hello and welcome to my first project! This page is the first tangible demonstration of applying my software engineering experience to my newly earned AWS Solutions Architect skills. What started as a simple file-upload API, just a Lambda writing to S3, grew into a production-minded template you can brand for a client and ship.
 
 The result: a resilient web front end served from **Amazon S3** and accelerated by **CloudFront**, secured by **Amazon Cognito** (OAuth 2.0), with **Lambda behind API Gateway** for control APIs, **DynamoDB** for upload metadata, and **SES** for notifications. The static UI is intentionally generic so it can be swapped for client branding, while the surrounding infrastructure stays rock-solid.
 
@@ -21,3 +21,5 @@ In the chapters that follow, I trace how the prototype became a real system:
 5. **Logging & Notifications** — Writing upload intent to **DynamoDB** and sending **SES** emails at presign; optionally confirming final writes with **S3 Event Notifications**.
 
 Each section details the challenge I encountered, the solution I implemented, and the lessons that solidified my understanding of AWS architectures.
+
+--------------------------------------------
