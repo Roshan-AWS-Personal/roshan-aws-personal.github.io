@@ -12,12 +12,6 @@ I provisioned a single CloudFront distribution with two origins:
 
 By default, CloudFront forwarded only minimal headers (`Host`, `User-Agent`, etc.) and cached responses aggressively (TTL = 24h). On the S3 side, the CORS policy allowed `GET, HEAD` from `https://my-portfolio.example.com`. API Gateway responded to CORS preflights for `POST` requests.
 
-<div align="center">
-    <figure class="figure-center">
-    <img src="{{ site.baseurl }}/assets/images/initial-cloudfront-setup.png" alt="Initial CloudFront Setup" />
-    <figcaption><strong>Figure 5.</strong> Initial CloudFront distribution with two origins (S3 & API) and default behaviors.</figcaption>
-    </figure>
-</div>
 
 ### 2. Early Failures
 Once live, clients began hitting problems:
