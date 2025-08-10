@@ -47,7 +47,7 @@ For the API paths, I used:
 - **Managed-CachingDisabled** (no caching of authenticated responses)
 - **Managed-AllViewerExceptHostHeader** (forwards viewer headers like `Authorization`, while letting CloudFront set `Host` correctly)
 
-### CORS, briefly
+### CORS
 
 - **UI → API** is now **same-origin** through CloudFront → browsers don’t do CORS preflights for those calls.  
 - **Browser → S3** (presigned `PUT`) is **cross-origin**, so **S3 CORS** allows my site domain, `PUT/GET/HEAD/OPTIONS`, and `*` headers, and exposes `ETag`.
@@ -58,12 +58,13 @@ For the API paths, I used:
 - **Tokens in the browser**: Storing the `id_token` in `localStorage` is simple and works for this project; on 401 the UI re-auths. (For larger apps, consider PKCE + code flow and/or cookie-based sessions.)  
 - **Keep the edge simple**: Let **API Gateway** do JWT validation; CloudFront just routes and forwards the right headers.
 
-**Key takeaways**
-
-- Moving from a shared API key to **per-user JWTs** gave me identity, revocation, and cleaner audit trails.  
-- Putting **CloudFront in front of S3 + API** simplified the browser security story (same-origin for API) while keeping API responses uncached.  
-- Use **managed policies** where possible—less custom config, fewer surprises.
-
 By evolving from a naïve API-key model to a full Cognito OAuth2 flow, I hardened the API and embraced patterns critical for production-grade, user-centric applications.
+
+### Key points
+- **Per-user JWTs, not a shared key:** Users authenticate via Cognito Hosted UI; the UI stores an `id_token` and sends `Authorization: Bearer <token>` to the API.
+- **JWT validated before Lambda:** API Gateway’s **Cognito Authorizer** verifies issuer/audience/signature/expiry; only valid requests reach your functions.
+- **401 handling:** On token expiry or invalidation, the UI clears the token and redirects to Cognito login (implicit flow—no refresh token).
+- **Principle of least exposure:** No static API keys in the frontend; tokens are short-lived and user-scoped, reducing blast radius.
+- **Consistent domains & redirects:** Cognito redirect URIs point to the CloudFront domain so auth completes cleanly in all environments.
 
 ---------------

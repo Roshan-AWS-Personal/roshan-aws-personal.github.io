@@ -7,11 +7,6 @@ Hello and welcome to my first project! This page is the first tangible demonstra
 
 The result: a resilient web front end served from **Amazon S3** and accelerated by **CloudFront**, secured by **Amazon Cognito** (OAuth 2.0), with **Lambda behind API Gateway** for control APIs, **DynamoDB** for upload metadata, and **SES** for notifications. The static UI is intentionally generic so it can be swapped for client branding, while the surrounding infrastructure stays rock-solid.
 
-A few design choices shaped everything that follows:
-- **One CloudFront in front of S3 and API**: default behavior serves the UI from S3; path behaviors route **`/upload`** and **`/files`** to API Gateway with auth headers forwarded.
-- **Presigned uploads**: the browser streams directly to S3 at native speed; the API just authorizes and issues URLs.
-- **Right-sized CORS**: UI→API calls are same-origin (no CORS); S3 still has a strict CORS policy for the browser’s presigned `PUT`.
-
 In the chapters that follow, I trace how the prototype became a real system:
 
 1. **Infrastructure as Code** — Turning a console-click sketch into Terraform across environments (and the little gotchas, like `${...}` escaping in templates).  

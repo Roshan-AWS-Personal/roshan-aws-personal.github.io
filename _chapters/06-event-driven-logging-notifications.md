@@ -76,17 +76,15 @@ def lambda_handler(event, context):
 
 The beauty of this setup is that uploads keep flowing exactly as before — the logging happens entirely on the side, without slowing down the client.
 
-### Why This Matters
-
 This layer gave me:
 - **Full Traceability:** Every upload now has a permanent, queryable record in DynamoDB.  
 - **Future-Proofing:** That metadata table could power an admin dashboard, usage reports, or automated workflows without touching the upload pipeline.
 
-
-### Trade-Offs and Lessons
-
-The biggest decision was keeping logging **post-upload** rather than validating in real time. That means a bad file might hit the bucket before I flag it — but for my current needs, the scalability and simplicity were worth it. If I needed stronger enforcement, I could still combine this with pre-upload checks.
-
 Next time, I’ll probably feed this into an SNS topic or EventBridge bus so other services can subscribe without me wiring them directly. But for now, DynamoDB + SES was simple win I wanted.
 
+### Key points
+- **Decoupled, post-upload logging:** S3 **Event Notifications** trigger a lightweight Lambda after the object is written—no impact on the upload fast path.
+- **DynamoDB record per object:** Write an entry with `s3_bucket`, `s3_key`, `filesize`, `timestamp`, and status=`uploaded`. Use the S3 key as the primary key for easy correlation.
+- **Optional alerts:** Fire **SES** emails. If SES fails, don’t fail the handler—log and continue.
+- **Low cost, high leverage:** Pay per event invocation and a single DynamoDB write. No extra latency for the user.
 -----------------

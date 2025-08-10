@@ -2,11 +2,7 @@
 layout: default
 title: "Terraform: From Clicks to Code"
 ---
-When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. This was obviously less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
-
-**“Dev” vs. “Prod”: Separate your Playgrounds**
-
-In real-world teams, you never build production features in the same sandbox where you’re experimenting. I wanted to adopt that same discipline: a clean **dev** playground where I could tinker and break things, and a locked-down **prod** environment for anything user-facing. The console alone made this an error-prone nightmare: manual clicks here, copy-and-paste there, and suddenly your “dev” bucket has production data—or vice versa.
+When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. This was obviously less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight. In real-world teams, you never build production features in the same sandbox where you’re experimenting. I wanted to adopt that same discipline: a clean **dev** playground where I could tinker and break things, and a locked-down **prod** environment for anything user-facing. The console alone made this an error-prone nightmare: manual clicks here, copy-and-paste there, and suddenly your “dev” bucket has production data—or vice versa.
 
 ### **Enter Terraform**
 
@@ -179,14 +175,15 @@ jobs:
 
 
 ```
-
-### Why This Matters
-
-* **Scalability:** As soon as I added Cognito, CloudFront, or SES, I simply dropped in new Terraform modules—no manual console gymnastics.
-* **Collaboration:** My teammates (or future clients) can spin up a full stack in their own AWS accounts.
-* **Auditability:** I can trace exactly *when* and *why* a resource changed by looking at the Terraform state and Git history.
-
 This IaC + CI/CD foundation set the stage for every other layer of the project—authentication flows, event-driven logging, CORS strategies, and more. With it in place, I could focus on building features, confident that my infrastructure would remain consistent, reproducible, and secure.
+
+### Key points
+- **Single source of truth:** Every AWS resource (S3, CloudFront, API Gateway, Lambda, DynamoDB, SES) is declared in `.tf`—no console drift.
+- **Dev/Prod parity:** Same code, different **backend state** and variables per environment; the workflow selects the target env at run time.
+- **Safe by default:** CI runs `terraform validate` + `plan`; `apply` only happens when you explicitly toggle `confirm_apply=true`.
+- **Locked, versioned state:** S3 + DynamoDB state locking prevents concurrent applies and makes rollbacks/audits straightforward.
+- **Secrets stay secret:** AWS creds, IDs, and OAuth config live in **GitHub Secrets**—never hardcoded in repo or templates.
+- **Deterministic deploys:** Module inputs (region, stage, ids) come from the workflow; outputs (e.g., CloudFront URL) are emitted by Terraform for later steps.
 
 -----------------------------
 

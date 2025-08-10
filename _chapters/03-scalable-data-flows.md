@@ -20,7 +20,7 @@ I realized that in this initial design, every byte of every upload passed throug
 * **Constrained Observability:** My only logs were what I emitted in the function; I couldn’t capture granular upload metrics without adding more code.
 * **Scaling Synergy:** While Lambda itself scales horizontally, high concurrency during big-file bursts could exhaust account-level limits.
 
-I toyed briefly with the idea of splitting everything into microservices—one service for validation, another for upload orchestration, and yet another for metadata logging—but that would introduce distributed tracing, message queues, and more operational overhead. For now, I chose a middle path: offload the heavy lifting to S3 while maintaining a clear, event-driven pattern.
+I toyed briefly with the idea of splitting everything into microservices. One service for validation, another for upload orchestration, and yet another for metadata logging—but that would introduce distributed tracing, message queues, and more operational overhead. For now, I chose a middle path: offload the heavy lifting to S3 while maintaining a clear, event-driven pattern.
 
 <div align="center">
     <figure>
@@ -60,5 +60,13 @@ Of course, this pattern isn’t without its trade‑offs. Clients now implement 
 
 ### Reflecting on Coupling and Scope
 Looking at the result, I can see it’s still a relatively cohesive service rather than a full microservices ecosystem. All upload-related concerns remain within a narrow boundary: URL generation, file ingestion, and metadata logging. That tight coupling actually serves simplicity—there’s no distributed saga or queue choreography to debug. In future iterations, I could extract the logger into an event bus or introduce image processing pipelines, but for this portfolio piece, I chose clarity and demonstrable best practices over building every conceivable component.
+
+
+### Key points
+- **Presigned uploads, not streamed Lambdas:** `GET /upload` returns a 5-minute presigned **PUT** URL; the browser uploads **directly to S3**. Large files don’t consume Lambda GB-seconds.
+- **Validate up front:** The presign Lambda sanitizes filenames, enforces a size cap, and **routes to a bucket by extension** (images vs documents) before issuing the URL.
+- **Two-step client flow:** Request URL → PUT file. Handle **expired URLs** by re-requesting a new presign and retrying the upload.
+- **S3 CORS still matters:** Browser→S3 PUT is cross-origin. Allow your site domain; methods **PUT/GET/HEAD/OPTIONS**; headers `*`; and **expose `ETag`**.
+- **Why it scales:** S3 handles the bytes; Lambda stays light and predictable; costs align with storage/PUTs rather than compute time.
 
 -----------------------------

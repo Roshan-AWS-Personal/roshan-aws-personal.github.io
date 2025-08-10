@@ -146,13 +146,11 @@ resource "aws_cloudfront_distribution" "frontend" {
       --paths "/*"
 ```
 
-### Key Points & Takeaways
-- One distribution, two origins: default behavior → S3 (UI), path behaviors /upload and /files → API Gateway.
-- API header forwarding: use AWS Managed-AllViewerExceptHostHeader so the API receives all viewer headers (incl. Authorization); Host is set by CloudFront to the origin host.
-- Caching: Managed-CachingOptimized for S3 (static assets), Managed-CachingDisabled for API (always fresh, TTL = 0).
-- CORS reality now: UI→API calls are same-origin, so the browser doesn’t preflight them. S3 CORS is still required for presigned PUTs (browser → S3).
-- S3 CORS: allow your site domain, methods GET/PUT/HEAD/OPTIONS, headers *, and expose ETag.
-- Deploy hygiene: use hashed filenames for JS/CSS/images (long cache), and short/no-cache for HTML. Invalidate HTML only when needed; full invalidations are rarely required.
-- Automated CloudFront invalidations so CORS and behavior changes propagate instantly to all edge locations.
+### Key Points
+- **One distribution, two origins:** default behavior → S3 (UI), path behaviors /upload and /files → API Gateway.
+- **API header forwarding:** use AWS Managed-AllViewerExceptHostHeader so the API receives all viewer headers (incl. Authorization); Host is set by CloudFront to the origin host.
+- **Caching:** Managed-CachingOptimized for S3 (static assets), Managed-CachingDisabled for API (always fresh, TTL = 0).
+- **CORS reality now:** UI→API calls are same-origin, so the browser doesn’t preflight them. S3 CORS is still required for presigned PUTs (browser → S3).
+- **Automated CloudFront invalidations:** CORS and behavior changes propagate instantly to all edge locations.
 
 ------------------------
