@@ -16,10 +16,6 @@ So I shifted gears and embraced Terraform for everything:
 * **Environment Swaps in a Snap:** By parameterizing with workspaces (or different state backends), I can point the same code at a dev account one moment and a prod account the next—just by changing a GitHub Action variable.
 * **Git-Driven Confidence:** All changes Github Actions. I get a `terraform plan` preview automatically, so I can peer-review infrastructure like I review code.
 * **Secure Secrets Handling:** Access keys, bucket names, and Cognito client IDs live in GitHub Secrets—never hardcoded. Onboarding a new collaborator is as simple as granting them repo-level secrets access, not IAM creds.
-* **Repeatability & Disaster Recovery:** Destroying and re-creating an environment is as easy as 
-```bash
-terraform destroy && terraform apply
-```
 
 ### Sample Terraform Code Snippet
 

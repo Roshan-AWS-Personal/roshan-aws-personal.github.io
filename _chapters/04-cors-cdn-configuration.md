@@ -14,7 +14,7 @@ By default, CloudFront forwarded only minimal headers (`Host`, `User-Agent`, etc
 
 <div align="center">
     <figure class="figure-center">
-    <img src="{{ site.baseurl }}/assets/images/initial-cloudfront.png" alt="Initial CloudFront Setup" />
+    <img src="{{ site.baseurl }}/assets/images/initial-cloudfront-setup.png" alt="Initial CloudFront Setup" />
     <figcaption><strong>Figure 5.</strong> Initial CloudFront distribution with two origins (S3 & API) and default behaviors.</figcaption>
     </figure>
 </div>
