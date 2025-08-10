@@ -87,4 +87,5 @@ Next time, I’ll probably feed this into an SNS topic or EventBridge bus so oth
 - **DynamoDB record per object:** Write an entry with `s3_bucket`, `s3_key`, `filesize`, `timestamp`, and status=`uploaded`. Use the S3 key as the primary key for easy correlation.
 - **Optional alerts:** Fire **SES** emails. If SES fails, don’t fail the handler—log and continue.
 - **Low cost, high leverage:** Pay per event invocation and a single DynamoDB write. No extra latency for the user.
------------------
+
+------------------
