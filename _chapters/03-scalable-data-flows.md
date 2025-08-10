@@ -3,7 +3,7 @@ layout: default
 title: Scalable Data Flows
 ---
 
-With my CI/CD runners humming and Terraform modules orchestrating everything from S3 buckets to API Gateway, I set out to implement the most straightforward upload pipeline I could imagine: client → API Gateway → Lambda → S3. In development, this flow felt almost magical—one commit, one click in GitHub Actions, and I could watch a fresh S3 bucket appear in the console complete with IAM policies, CORS rules, and a working Lambda ready to accept file payloads. Switching between dev and prod was as trivial as choosing a different environment in the workflow inputs and watching Terraform seamlessly apply the right state.
+With my CI/CD runners humming and Terraform modules orchestrating everything from S3 buckets to API Gateway, I set out to implement the most straightforward upload pipeline I could imagine: client → API Gateway → Lambda → S3. In development, this flow felt very coherent, one click in GitHub Actions, and I could watch a fresh S3 bucket appear in the console complete with IAM policies, CORS rules, and a working Lambda ready to accept file payloads. Switching between dev and prod was as simple as choosing a different environment in the workflow inputs and watching Terraform seamlessly apply the right state.
 
 <div align="center">
   <figure>
@@ -12,12 +12,9 @@ With my CI/CD runners humming and Terraform modules orchestrating everything fro
   </figure>
 </div>
 
-
-
-
 Yet, once the prototype was in place, I began to ask tougher questions: what happens when a user uploads a 50 MB video? How would sudden spikes in traffic affect my Lambdas? Is my function ever going to timeout or run out of memory? And beyond raw performance, what visibility did I have into each uploaded file’s size, type, or provenance?
 
-I realized that in this initial design, every byte of every upload passed through my Lambda—tightly coupling data processing with business logic. This approach delivered centralized validation (I could inspect each payload and reject disallowed file types), but it also introduced serious limitations:
+I realized that in this initial design, every byte of every upload passed through my Lambda—tightly coupling data processing with business logic as well as other serious limitations:
 
 * **Execution Time & Cost:** Large payloads prolonged Lambda execution, driving up GB‑second costs and risking throttles.
 * **Constrained Observability:** My only logs were what I emitted in the function; I couldn’t capture granular upload metrics without adding more code.
@@ -31,8 +28,6 @@ I toyed briefly with the idea of splitting everything into microservices—one s
         <figcaption><strong>Figure 2. </strong> Pre-Signed URL Upload Flow: client ⇄ URL-Generator Lambda ⇄ S3 & async logging</figcaption>
     </figure>
 </div>
-
-
 
 ### Embracing Pre-Signed URLs
 
@@ -50,8 +45,8 @@ presigned_url = s3.generate_presigned_url(
     ExpiresIn=300
 )
 ```
-1. **Generate URL:** The client sends a small request (`filename`, `contentType`) to `/generate-upload-url`.
-2. **Validate & Sign:** A focused Lambda checks user permissions, inspects or sanitizes `filename`, and calls S3’s `getSignedUrl('putObject')` with a short expiration window.
+1. **Generate URL:** The client sends a small request (`filename`, `contentType`) to `GET /upload` API.
+2. **Validate & Sign:** A focused Lambda inspects or sanitizes `filename`, and calls S3’s `getSignedUrl('putObject')` with a short expiration window.
 3. **Direct Upload:** The client uploads the file bytes straight to S3 using the returned URL—bypassing Lambda.
 4. **Async Logging:** An S3 event notification fires a separate `log-upload` Lambda that records metadata in DynamoDB and optionally triggers SES alerts.
 
@@ -64,7 +59,6 @@ This refactoring untangled the data plane from my compute plane:
 Of course, this pattern isn’t without its trade‑offs. Clients now implement a two-step process and must gracefully handle expired URLs—adding retry logic in our front‑end code. I also had to refine bucket-level CORS rules to allow `PUT` requests from our domain, including headers like `Content-Type` and `x-amz-meta-*`. But these additions felt like worthwhile investments for a more robust, scalable system.
 
 ### Reflecting on Coupling and Scope
-
 Looking at the result, I can see it’s still a relatively cohesive service rather than a full microservices ecosystem. All upload-related concerns remain within a narrow boundary: URL generation, file ingestion, and metadata logging. That tight coupling actually serves simplicity—there’s no distributed saga or queue choreography to debug. In future iterations, I could extract the logger into an event bus or introduce image processing pipelines, but for this portfolio piece, I chose clarity and demonstrable best practices over building every conceivable component.
 
 -----------------------------

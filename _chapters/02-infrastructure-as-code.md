@@ -1,8 +1,8 @@
 ---
 layout: default
-title: "Infrastructure as Code: From Clicks to Code"
+title: "Terraform: From Clicks to Code"
 ---
-When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. Sure, it meant less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
+When I first sketched out this project, I figured I’d spin up my Lambda function, create an S3 bucket, and wire up API Gateway all through the AWS Console. This was obviously less upfront effort, but I quickly realized that approach would bite me as soon as I wanted to scale, collaborate, or even just keep my environments straight.
 
 **“Dev” vs. “Prod”: Separate your Playgrounds**
 
@@ -12,17 +12,14 @@ In real-world teams, you never build production features in the same sandbox whe
 
 So I shifted gears and embraced Terraform for everything:
 
-* **One Source of Truth:** Every resource—Lambda, S3, API Gateway, DynamoDB—lives in `.tf` files. No secret console steps hiding in my brain.
+* **One Source of Truth:** Every resource—Lambda, S3, API Gateway, DynamoDB—lives in `.tf` files.
 * **Environment Swaps in a Snap:** By parameterizing with workspaces (or different state backends), I can point the same code at a dev account one moment and a prod account the next—just by changing a GitHub Action variable.
-* **Git-Driven Confidence:** All changes go through pull requests. I get a `terraform plan` preview automatically, so I can peer-review infrastructure like I review code.
+* **Git-Driven Confidence:** All changes Github Actions. I get a `terraform plan` preview automatically, so I can peer-review infrastructure like I review code.
 * **Secure Secrets Handling:** Access keys, bucket names, and Cognito client IDs live in GitHub Secrets—never hardcoded. Onboarding a new collaborator is as simple as granting them repo-level secrets access, not IAM creds.
 * **Repeatability & Disaster Recovery:** Destroying and re-creating an environment is as easy as 
 ```bash
 terraform destroy && terraform apply
 ```
-
-
-No more accidental cloud sprawl or “how-did-that-thing-get-created?” mysteries.
 
 ### Sample Terraform Code Snippet
 
@@ -45,56 +42,146 @@ variable "environment" {
 Beyond just managing infrastructure definitions, I built a GitHub Actions workflow to tie everything together—transforming manual terminal commands into a polished, click-to-deploy experience:
 
 * **Branch-Based Environment Selection:** A workflow input lets you choose `dev` or `prod` when triggering a run. Under the hood, the action sets the `environment` variable accordingly, ensuring the same Terraform code targets the correct AWS account and state bucket.
-* **Manual Approvals & Protected Branches:** By protecting the `main` branch and requiring at least one approver before merging, I ensure `prod` deployments never happen by accident. Once merged, the `apply` step runs automatically, promoting changes to production with confidence.
-* **Plan Previews in PR Checks:** Every pull request against either branch triggers a `terraform plan` step. The resulting plan summary is posted as a check comment—so reviewers see exactly what infrastructure changes will occur.
+* **Optional Apply After Plan:** The workflow includes an input flag that controls whether terraform apply runs after terraform plan. This lets you preview the plan output first—checking exactly what will change—before deciding to re-run the workflow with apply enabled. It’s a simple safeguard against unintended infrastructure updates.
 * **Secrets & Permissions:** GitHub Secrets store AWS access keys, state bucket names, and Cognito client IDs. The workflow pulls these in securely, eliminating any hardcoded credentials. Role-based access controls in the repo mean only authorized team members can modify the deployment logic.
 
 ### GitHub Actions Workflow (`.github/workflows/terraform.yml`)
 
 ```yaml
-name: "Terraform Infrastructure"
+name: "Terraform Deploy"
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Choose environment.'
+        description: "Which environment to target (dev or prod)"
         required: true
-        default: dev
         type: choice
+        default: "dev"
         options:
           - dev
           - prod
-  pull_request:
-    branches:
-      - dev
-      - main
+      confirm_apply:
+        description: "Set to true to run the apply step (default=false → plan only)"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+    env:
+      AWS_REGION: ap-southeast-2
+
+      # Dev vs Prod credentials
+      AWS_ACCESS_KEY_ID_DEV:     ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+      AWS_SECRET_ACCESS_KEY_DEV: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+      AWS_ACCESS_KEY_ID_PROD:    ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+      AWS_SECRET_ACCESS_KEY_PROD: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+      AWS_UPLOAD_API_SECRET_DEV: ${{ secrets.UPLOAD_API_SECRET_DEV }}
+      AWS_UPLOAD_API_SECRET_PROD: ${{ secrets.UPLOAD_API_SECRET_PROD }}
+      AWS_UPLOAD_API_URL_DEV:    ${{ secrets.AWS_API_URL_DEV }}
+      AWS_UPLOAD_API_URL_PROD:   ${{ secrets.AWS_API_URL_PROD }}
+      AWS_LIST_API_URL_REDIRECT_DEV: ${{ secrets.AWS_API_URL_LIST_FILES_DEV}}
+
+      # Backend resources
+      STATE_BUCKET_DEV:   ${{ secrets.STATE_BUCKET_DEV }}
+      STATE_BUCKET_PROD:  ${{ secrets.STATE_BUCKET_PROD }}
+      DYNAMODB_TABLE:     ${{ secrets.DYNAMODB_TABLE }}
+      STATE_PREFIX:       ${{ secrets.STATE_PREFIX }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Select AWS credentials and bucket
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+            echo "AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID_DEV }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY_DEV }}" >> $GITHUB_ENV
+            echo "STATE_BUCKET=${{ env.STATE_BUCKET_DEV }}" >> $GITHUB_ENV
+          else
+            echo "AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID_PROD }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY_PROD }}" >> $GITHUB_ENV
+            echo "STATE_BUCKET=${{ env.STATE_BUCKET_PROD }}" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-2
+          terraform_version: "1.5.0"
+
+      - name: Determine target
+        id: env
+        run: |
+          echo "WORK_DIR=live/${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
 
       - name: Terraform Init
-        run: terraform init \
-          -backend-config="bucket=my-tf-state-${{ github.event.inputs.environment }}"
+        working-directory: ${{ steps.env.outputs.WORK_DIR }}
+        run: |
+          terraform init -input=false \
+            -backend-config="bucket=${{ env.STATE_BUCKET }}" \
+            -backend-config="key=${{ env.STATE_PREFIX }}/${{ github.event.inputs.environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ env.DYNAMODB_TABLE }}"
+
+      - name: Terraform Validate
+        working-directory: ${{ steps.env.outputs.WORK_DIR }}
+        run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan \
-          -var="env=${{ github.event.inputs.environment }}"
+        working-directory: ${{ steps.env.outputs.WORK_DIR }}
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+            SECRET=${{ env.AWS_UPLOAD_API_SECRET_DEV }}
+            API_URL=${{ env.AWS_UPLOAD_API_URL_DEV }}
+            COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID_DEV }}
+            COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN_DEV }}
+            LOGIN_URL=${{ secrets.LOGIN_URL_DEV }}
+            REDIRECT_URI_LIST=${{ secrets.AWS_API_LIST_REDIRECT_URL_DEV }}
+            API_URL_LIST_FILES=${{ secrets.AWS_API_URL_LIST_FILES_DEV }}
+          else
+            SECRET=${{ env.AWS_UPLOAD_API_SECRET_PROD }}
+            API_URL=${{ env.AWS_UPLOAD_API_URL_PROD }}
+            API_URL_LIST_FILES=${{ secrets.AWS_API_URL_LIST_FILES_PROD }}
+            REDIRECT_URI_LIST=${{ secrets.AWS_API_URL_LIST_FILES_PROD }}
+            COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID_PROD }}
+            COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN_PROD }}
+            LOGIN_URL=${{ secrets.LOGIN_URL_PROD }}
+          fi
 
-      - name: Terraform Apply (Prod Only)
-        if: github.event.inputs.environment == 'prod' && github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve \
-          -var="env=prod"
+          terraform plan \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="state_bucket=${{ env.STATE_BUCKET }}" \
+            -var="state_prefix=${{ env.STATE_PREFIX }}" \
+            -var="dynamodb_table=${{ env.DYNAMODB_TABLE }}" \
+            -var="upload_api_secret=$SECRET" \
+            -var="upload_api_url=$API_URL" \
+            -var="login_redirect_url=$LOGIN_URL" \
+            -var="logout_redirect_url=$LOGIN_URL" \
+            -var="cognito_client_id=$COGNITO_CLIENT_ID" \
+            -var="cognito_domain=$COGNITO_DOMAIN" \
+            -var="redirect_uri_list=$AWS_LIST_API_URL_REDIRECT_DEV" \
+            -var="list_api_url=$API_URL_LIST_FILES" \
+            -out=tfplan
+
+      - name: Terraform Apply (manual)
+        if: ${{ github.event.inputs.confirm_apply == 'true' }}
+        working-directory: ${{ steps.env.outputs.WORK_DIR }}
+        run: terraform apply -auto-approve tfplan
+        
+      - name: Invalidate CloudFront (index.html)
+        if: ${{ github.event.inputs.confirm_apply == 'true' }}
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+            DIST_ID="${{ secrets.CF_DIST_ID_DEV }}"
+          else
+            DIST_ID="${{ secrets.CF_DIST_ID_PROD }}"
+          fi
+          aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/index.html" "/"
+
+
 ```
 
 ### Why This Matters

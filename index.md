@@ -6,8 +6,8 @@ layout: default
 - [Introduction](#introduction)  
 - [Infrastructure as Code](#infrastructure-as-code)  
 - [Scalable Data Flows](#scalable-data-flows)  
-- [Authentication & Security](#authentication--security)  
 - [CORS & CDN Configuration](#cors--cdn-configuration)  
+- [Authentication & Security](#authentication--security)  
 - [Event-Driven Logging & Notifications](#event-driven-logging--notifications)  
 - [Conclusion](#conclusion)
 
