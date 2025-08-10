@@ -74,8 +74,6 @@ def lambda_handler(event, context):
     return {"statusCode": 200, "body": "Processed S3 event"}
 ```
 
-The beauty of this setup is that uploads keep flowing exactly as before — the logging happens entirely on the side, without slowing down the client.
-
 This layer gave me:
 - **Full Traceability:** Every upload now has a permanent, queryable record in DynamoDB.  
 - **Future-Proofing:** That metadata table could power an admin dashboard, usage reports, or automated workflows without touching the upload pipeline.
