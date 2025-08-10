@@ -28,7 +28,7 @@ The idea:
 <div align="center">
     <figure>
         <img src="{{ site.baseurl }}/assets/images/event-driven-logging.png" alt="Event-Driven Logging Architecture" />
-        <figcaption><strong>Figure 7.</strong> S3 Event-Driven Logging & Notifications</figcaption>
+        <figcaption><strong>Figure 6.</strong> S3 Event-Driven Logging & Notifications</figcaption>
     </figure>
 </div>
 

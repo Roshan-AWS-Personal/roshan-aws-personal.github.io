@@ -8,7 +8,7 @@ When I first added security to the file-upload API, I reached for the simplest m
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/initial-security-flow.png" alt="Initial Security Flow" />
-    <figcaption><strong>Figure 3.</strong> Basic Authentication Flow: X-API-KEY → API Gateway → Lambda → S3</figcaption>
+    <figcaption><strong>Figure 4.</strong> Basic Authentication Flow: X-API-KEY → API Gateway → Lambda → S3</figcaption>
   </figure>
 </div>
 
@@ -22,7 +22,7 @@ To solve these issues, I migrated to Amazon Cognito User Pools and adopted the O
 <div align="center">
   <figure>
     <img src="{{ site.baseurl }}/assets/images/cognito-oauth2-flow.png" alt="Cognito OAuth2.0 Flow Flow" />
-    <figcaption><strong>Figure 4.</strong> Cognito OAuth2 Flow: /authorize → Cognito User Pool → /token → JWT → API Gateway (Cognito Authorizer) → Lambda → S3</figcaption>
+    <figcaption><strong>Figure 5.</strong> Cognito OAuth2 Flow: /authorize → Cognito User Pool → /token → JWT → API Gateway (Cognito Authorizer) → Lambda → S3</figcaption>
   </figure>
 </div>
 

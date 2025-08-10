@@ -23,7 +23,7 @@ Once live, clients began hitting problems:
 <div align="center">
     <figure class="figure-center">
     <img src="{{ site.baseurl }}/assets/images/refined-cache-behaviors-flow.png" alt="Refined CloudFront Setup" />
-    <figcaption><strong>Figure 6.</strong> Refined CloudFront cache behavior.</figcaption>
+    <figcaption><strong>Figure 3.</strong> Refined CloudFront cache behavior.</figcaption>
     </figure>
 </div>
 To resolve these, I implemented targeted cache behaviors, enhanced CORS rules, and automated invalidations.
