@@ -15,9 +15,3 @@ layout: default
 - [Improvements / Next](#improvements--next)
 
 ---
-
-{% for chap in site.chapters %}
-<a id="{{ chap.slug }}"></a>
-## **{{ chap.title }}**
-  {{ chap.content | markdownify }}
-{% endfor %}
