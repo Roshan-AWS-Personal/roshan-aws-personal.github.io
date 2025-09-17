@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "CORS & CDN Configuration: Taming CloudFront and Cross-Origin Hurdles"
+title: "CORS & CDN Configuration"
 ---
 
 Once the upload flows and security layers were in place, I introduced Amazon CloudFront in front of both my static S3 site and the API Gateway endpoints. The CDN promised lower latency, built-in WAF integration, and global edge coverage — but it also brought subtle cross-origin (CORS) and caching quirks that quickly surfaced in production.

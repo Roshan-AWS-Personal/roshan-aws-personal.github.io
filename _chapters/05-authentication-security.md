@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Authentication & Security: From Static Tokens to Cognito OAuth2"
+title: "Authentication & Security"
 ---
 
 When I first added security to the file-upload API, I reached for the simplest mechanism: a static API key passed as an `X-API-KEY` header. My Lambda function would read this header, compare it to a hardcoded value, and allow or deny uploads. It was quick to implement but posed several problems:
