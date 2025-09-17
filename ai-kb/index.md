@@ -3,7 +3,7 @@ layout: default
 ---
 
 ## Table of Contents
-- [Overview](#overview)
+- [Introduction](/ai-kb/01-introduction)
 - [Architecture](#architecture)
 - [Infrastructure as Code](#infrastructure-as-code)
 - [Ingestion (S3 → SQS → Lambda → DynamoDB)](#ingestion-s3--sqs--lambda--dynamodb)
