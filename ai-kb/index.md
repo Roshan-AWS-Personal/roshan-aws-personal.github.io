@@ -1,12 +1,8 @@
 ---
-title: Project 2 — AI Knowledge Base & Chat
 layout: default
-permalink: /ai-kb/
 ---
 
-# AI Knowledge Base & Chat (Project 2)
-
-**Table of Contents**
+## Table of Contents
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Infrastructure as Code](#infrastructure-as-code)
@@ -18,4 +14,10 @@ permalink: /ai-kb/
 - [Troubleshooting Notes](#troubleshooting-notes)
 - [Improvements / Next](#improvements--next)
 
-------------------------------------------------------------------------------------------------------------------
+---
+
+{% for chap in site.chapters %}
+<a id="{{ chap.slug }}"></a>
+## **{{ chap.title }}**
+  {{ chap.content | markdownify }}
+{% endfor %}
