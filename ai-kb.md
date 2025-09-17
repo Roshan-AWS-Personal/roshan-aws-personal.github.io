@@ -1,7 +1,6 @@
 ---
 layout: default
 title: "AI KB — All Chapters"
-permalink: /ai-kb/all/
 ---
 
 ## Table of Contents
