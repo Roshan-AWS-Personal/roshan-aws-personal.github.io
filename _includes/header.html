@@ -1,10 +1,24 @@
 <header class="site-header">
   <div class="container">
-    <nav class="site-nav">
-      <a href="/" {% raw %}{% if page.url == "/" %}class="active"{% endif %}{% endraw %}>Project 1</a>
-      <a href="/ai-kb/" {% raw %}{% if page.url contains "/ai-kb/" %}class="active"{% endif %}{% endraw %}>Project 2</a>
-      <!-- optional: GitHub link -->
-      <a href="https://github.com/Roshan-AWS-Personal" target="_blank" rel="noopener">GitHub</a>
+    <!-- Title (uses _config.yml 'title' and 'description') -->
+    <h1 class="site-title">
+      <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    </h1>
+    {% if site.description %}
+      <p class="site-tagline">{{ site.description }}</p>
+    {% endif %}
+
+    <!-- Sub-nav directly under the title -->
+    <nav class="site-subnav">
+      <a href="{{ '/' | relative_url }}"
+         class="{% if page.url == '/' %}active{% endif %}">Project 1</a>
+
+      <a href="{{ '/ai-kb/' | relative_url }}"
+         class="{% if page.url contains '/ai-kb/' %}active{% endif %}">Project 2</a>
+
+      <a href="https://github.com/Roshan-AWS-Personal" target="_blank" rel="noopener">
+        GitHub
+      </a>
     </nav>
   </div>
 </header>
