@@ -13,7 +13,7 @@
       <a href="{{ '/' | relative_url }}"
          class="{% if page.url == '/' %}active{% endif %}">Project 1</a>
 
-      <a href="/ai-kb/">Project 2</a>
+      <a href="{{ '/ai-kb/' | relative_url }}"
          class="{% if page.url contains '/ai-kb/' %}active{% endif %}">Project 2</a>
 
       <a href="https://github.com/Roshan-AWS-Personal" target="_blank" rel="noopener">
