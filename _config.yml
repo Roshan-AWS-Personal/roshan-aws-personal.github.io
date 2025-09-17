@@ -8,3 +8,6 @@ collections:
   chapters:
     output: true
     permalink: /:collection/:name/
+  ai-kb:
+    output: true
+    permalink: /:collection/:name/
