@@ -1,93 +1,41 @@
-# Who am I / OIDC provider
-data "aws_caller_identity" "me" {}
-data "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-}
+---
+layout: default
+title: "GitHub OIDC: From Static Keys to Short-Lived Roles"
+---
 
-# Trust policy tied to one repo (any branch)
-data "aws_iam_policy_document" "gha_trust" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRoleWithWebIdentity", "sts:TagSession"]
-    principals { type = "Federated", identifiers = [data.aws_iam_openid_connect_provider.github.arn] }
-    condition {
-      test = "StringEquals"
-      variable = "token.actions.githubusercontent.com:aud"
-      values = ["sts.amazonaws.com"]
+When I kicked off Project 2, I refused to ship another CI pipeline that depended on static AWS keys. I wanted **Terraform in charge** like Project 1—but with CI assuming **short-lived credentials via GitHub OIDC**. The result is cleaner security, tighter environment isolation, and a smoother deploy loop.
+
+### **Enter OIDC (keep Terraform in charge)**
+
+So I kept `.tf` as the single source of truth and wired CI to assume roles at runtime:
+
+- **Ephemeral credentials only:** GitHub → OIDC → STS; nothing to rotate or leak.
+- **Per-env roles:** one role for `dev`, one for `prod`, same workflow.
+- **Guardrails first:** explicit **deny outside region** and **deny TF state deletes**.
+- **Deterministic config:** values like `chat_api_domain` flow from workflow → Terraform vars (never hard-coded in HTML/JS).
+
+### Minimal IAM trust policy (repo-scoped, any branch)
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {
+      "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+    },
+    "Action": ["sts:AssumeRoleWithWebIdentity", "sts:TagSession"],
+    "Condition": {
+      "StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+      },
+      "StringLike": {
+        "token.actions.githubusercontent.com:sub": "repo:Roshan-AWS-Personal/roshan-aws-personal.github.io:ref:refs/heads/*"
+      }
     }
-    condition {
-      test = "StringLike"
-      variable = "token.actions.githubusercontent.com:sub"
-      values = ["repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/*"]
-    }
-  }
+  }]
 }
 
-resource "aws_iam_role" "gha" {
-  name               = "${var.project}-${var.env}-gha-role"  # e.g., ai-kb-dev-gha-role
-  assume_role_policy = data.aws_iam_policy_document.gha_trust.json
-  max_session_duration = 3600
-  tags = { Project = var.project, Env = var.env, ManagedBy = "terraform" }
-}
-
-# Guardrail: deny outside chosen region (exclude global services)
-data "aws_iam_policy_document" "deny_outside_region" {
-  statement {
-    sid        = "DenyOutsideRegion"
-    effect     = "Deny"
-    not_actions = ["iam:*","sts:*","cloudfront:*","route53:*","waf:*","wafv2:*","shield:*",
-                   "organizations:*","support:*","budgets:*","globalaccelerator:*"]
-    resources = ["*"]
-    condition {
-      test = "StringNotEquals"
-      variable = "aws:RequestedRegion"
-      values = [var.region]  # ap-southeast-2
-    }
-  }
-}
-resource "aws_iam_policy" "deny_outside_region" {
-  name   = "${var.project}-${var.env}-deny-outside-region"
-  policy = data.aws_iam_policy_document.deny_outside_region.json
-}
-
-# Guardrail: deny deleting TF state & lock table
-data "aws_iam_policy_document" "deny_tf_state_deletes" {
-  statement {
-    sid     = "DenyDeleteTfState"
-    effect  = "Deny"
-    actions = ["s3:DeleteBucket","s3:DeleteObject","s3:PutBucketVersioning","dynamodb:DeleteTable"]
-    resources = [
-      "arn:aws:s3:::${var.state_bucket}",
-      "arn:aws:s3:::${var.state_bucket}/*",
-      "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.me.account_id}:table/${var.dynamodb_table}"
-    ]
-  }
-}
-resource "aws_iam_policy" "deny_tf_state_deletes" {
-  name   = "${var.project}-${var.env}-deny-tf-state-deletes"
-  policy = data.aws_iam_policy_document.deny_tf_state_deletes.json
-}
-
-# Temporary while building (replace with least-privilege later)
-resource "aws_iam_role_policy_attachment" "admin" {
-  role = aws_iam_role.gha.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
-resource "aws_iam_role_policy_attachment" "guard_region" {
-  role = aws_iam_role.gha.name
-  policy_arn = aws_iam_policy.deny_outside_region.arn
-}
-resource "aws_iam_role_policy_attachment" "guard_state" {
-  role = aws_iam_role.gha.name
-  policy_arn = aws_iam_policy.deny_tf_state_deletes.arn
-}
-
-
-# Who am I / OIDC provider
-data "aws_caller_identity" "me" {}
-data "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-}
 
 # Trust policy tied to one repo (any branch)
 ```hcl
@@ -307,7 +255,6 @@ terraform output -raw gha_role_arn
 Add a quick echo before configure-aws-credentials:
 ```yaml
 - name: Echo selected role
-  run: echo "ROLE_TO_ASSUME=${{ env.ROLE_TO_ASSUME }}"
-```
+  run: echo "ROLE_TO_ASSUME=${{ env.ROLE_TO_ASSUME }}"```
 
 
