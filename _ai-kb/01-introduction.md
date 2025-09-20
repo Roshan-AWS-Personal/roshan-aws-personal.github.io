@@ -2,8 +2,6 @@
 layout: default
 title: "Introduction"
 ---
-# Introduction
-
 
 Hello and welcome to my second project! Building on the foundations of Project 1, this page documents my journey into **Retrieval-Augmented Generation (RAG)** using AWS. What began as a simple experiment with OpenSearch Serverless grew into a leaner, cost-aware design using **S3 + FAISS**, while keeping the same production-minded principles of Infrastructure as Code, CI/CD, and modular Terraform.
 
