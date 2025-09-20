@@ -19,23 +19,16 @@ This section lays out the first design for the chat experience: **upload → ing
 8. **Observability**: CloudWatch logs/metrics for both Lambdas; alarms on errors/throttles. (Optional) DynamoDB row per upload for audit; SES alerts for failures.
 
 
-<!-- Side-by-side diagrams -->
-<style>
-  .img-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin:1rem 0}
-  .img-row figure{flex:1 1 420px;margin:0}
-  .img-row img{width:100%;height:auto;border:1px solid #e2e8f0;border-radius:8px}
-  .img-row figcaption{font-size:.9rem;color:#6b7280;margin-top:.5rem}
-</style>
-
-<div class="img-row">
+<div align="center">
   <figure>
-    <img src="{{ '/assets/images/ingest-flow.png' | relative_url }}"
-         alt="Document ingestion & vectorization: S3 → SQS → Lambda → Titan → OpenSearch Serverless">
-    <figcaption>Document Ingestion & Vectorization (S3 → SQS → Lambda → Titan → AOSS)</figcaption>
+    <img src="{{ site.baseurl }}/assets/images/ingest-flow.png" alt="Document Ingestion & Vectorization: S3 → SQS → Lambda (ingest) → Titan Embeddings → OpenSearch Serverless" />
+    <figcaption><strong>Figure 1. </strong> Document Ingestion & Vectorization — Client → S3 (docs) → S3 Event → SQS → Lambda (ingest) → Titan Text Embeddings v2 → OpenSearch Serverless (vector index).</figcaption>
   </figure>
+</div>
+
+<div align="center">
   <figure>
-    <img src="{{ '/assets/images/query-flow.png' | relative_url }}"
-         alt="Query & chat: API Gateway → Lambda → Titan → OpenSearch Serverless → Claude">
-    <figcaption>Query & Chat (API GW → Lambda → Titan → AOSS → Claude)</figcaption>
+    <img src="{{ site.baseurl }}/assets/images/query-flow.png" alt="Query & Chat: API Gateway → Lambda (query) → Titan Embeddings (query) → OpenSearch vector search → Claude 3 (chat) → response" />
+    <figcaption><strong>Figure 2. </strong> Query & Chat Flow — Client → API Gateway → Lambda (query) → Titan embed(q) → OpenSearch Top-K → Claude 3 with {q+ctx} → response to client.</figcaption>
   </figure>
 </div>

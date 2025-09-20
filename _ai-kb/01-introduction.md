@@ -20,4 +20,3 @@ In the chapters that follow, I trace how the prototype became a real system:
 
 Each section captures the challenges I faced, the solutions I built, and the lessons that deepened my understanding of **cost-efficient, production-minded AWS architectures**.
 
--------------------------------------------------------------------------------------------------------------------
