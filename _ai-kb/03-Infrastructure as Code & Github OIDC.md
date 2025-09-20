@@ -37,7 +37,7 @@ So I kept `.tf` as the single source of truth and wired CI to assume roles at ru
 }
 
 ```
-# Trust policy tied to one repo (any branch)
+### Trust policy tied to one repo (any branch)
 ```hcl
 data "aws_iam_policy_document" "gha_trust" {
   statement {
