@@ -208,7 +208,7 @@ jobs:
         run: terraform apply -auto-approve tfplan
 ```
 
-### One-time OIDC bootstrap (what I did at the terminal)
+## One-time OIDC bootstrap (what I did at the terminal)
 To break the chicken-and-egg (the role must exist before CI can assume it), I created the OIDC role **once** with local AWS creds, grabbed its ARN, and fed that into GitHub as a secret.
 
 **1) Add an output to `oidc.tf` so Terraform prints the role ARN**
