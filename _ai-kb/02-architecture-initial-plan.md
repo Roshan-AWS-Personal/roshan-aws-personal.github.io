@@ -2,13 +2,11 @@
 layout: default
 title: "Initial Architecture & End-to-End Vision (v1: OpenSearch Serverless)"
 ---
+Before explaining the initial architecture of my project, it is worth explaining what RAG is in the first place. RAG (Retrieval-Augmented Generation) is a pattern where a user’s query is first enriched with relevant context retrieved from a knowledge base (e.g., documents stored as embeddings), and only then passed to a large language model. Instead of asking the model to “know everything,” RAG grounds answers in your own data — reducing hallucinations, improving relevance, and controlling costs.
 
-This section lays out the first design for the chat experience: **upload → ingest → vector search → chat**, built on Amazon Bedrock, OpenSearch Serverless (AOSS), and Lambda.
+With that in mind, here is the first design for our chat experience: **upload → ingest → vector search → chat**, built on Amazon Bedrock, OpenSearch Serverless (AOSS), and Lambda.
 
-> **What is RAG (in 2 lines)?**  
-> Retrieval-Augmented Generation retrieves relevant context from your own data (via embeddings + vector search) **before** sending a prompt to the LLM. It grounds answers, cuts hallucinations, and reduces cost by keeping prompts concise.
-
-## High-Level Flow (happy path)
+## High-Level Flow
 1. **User uploads a document** (UI) → lands in **S3** under `docs/`.
 2. **S3 Event → SQS** (buffer) to absorb spikes and guarantee delivery.
 3. **Ingest Lambda** reads from SQS → chunks text → **Titan Text Embeddings v2 (1024-d)** → **index into OpenSearch Serverless** (AOSS).
@@ -16,7 +14,7 @@ This section lays out the first design for the chat experience: **upload → ing
 5. **Query Lambda**: embed the user query (Titan) → vector search Top-K in AOSS → assemble concise context snippets.
 6. **Bedrock Chat (Claude)** receives `{question + context}` → returns a grounded answer.
 7. **Response** shown in UI (with optional citations/snippets).
-8. **Observability**: CloudWatch logs/metrics for both Lambdas; alarms on errors/throttles. (Optional) DynamoDB row per upload for audit; SES alerts for failures.
+8. **Observability**: CloudWatch logs/metrics for both Lambdas.
 
 
 <div align="center">

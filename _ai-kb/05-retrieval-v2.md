@@ -3,7 +3,7 @@ layout: default
 title: "Cost Pivot: FAISS on S3 (Retrieval v2)"
 ---
 
-The **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
+Although my first iteration of the project achieved the milestones I wanted, the **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. Merely keeping the indexes open in OpenSearch costed me 250 USD a week, which I sadly found out the hard way. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
 
 ### Trade-offs from v1 → why v2
 - **Idle spend vs. usage:** AOSS stays “on” even when nobody’s querying; FAISS + S3 costs almost nothing at rest.
@@ -14,14 +14,8 @@ The **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfo
 - **Changed:** Vector store is now **FAISS files in S3**; Lambdas load/search locally.
 - **Changed:** Introduced an **atomic “latest” index pointer** and versioned folders for safe roll-forward/back.
 - **Stayed the same:** **Upload → Ingest → Chat** UI contract; **Titan** for embeddings; **Claude** for answers; event-driven ingestion via **S3 → SQS → Lambda**.
-
----
-
-
 - **Versioned publish:** write to `v00X/` first, then **copy** files to `latest/` to “flip” atomically.
 - **Manifest:** tiny JSON with `dimension`, `count`, `created_at`, and an `etag` so the **Query Lambda** can decide whether to refresh `/tmp` cache.
-
----
 
 ### Ingestion path (build & publish index)
 - **Trigger:** S3 upload → SQS → **Ingest Lambda**.
@@ -89,7 +83,7 @@ def build_and_publish(chunks, embeddings):
 - **Assemble prompt:** concise, deduped snippets + the user question; enforce a **token budget**.
 - **Answer:** call **Claude 3 Haiku** with `{question + context}`; return text (+ optional citations) to the client.
 
-## query_lambda.py (trimmed)
+### query_lambda.py (trimmed)
 
 ```python
 import os, json, boto3, faiss, numpy as np

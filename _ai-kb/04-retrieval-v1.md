@@ -47,14 +47,11 @@ I started the RAG build on **Amazon OpenSearch Serverless (AOSS)** for vector se
 ```
 
 ### Operational notes
-- **SigV4 signing:** Used the AWS SDK to sign AOSS requests; no custom crypto or headers needed.
 - **IAM scoping:** Ingest Lambda had **write-only** permissions to the collection; Query Lambda had **search-only**. Collection security policy was kept minimal.
 - **SQS durability:** S3 → SQS decoupled spikes; ingest was **idempotent** by using a stable `{doc_id#page#chunk}` as the OpenSearch document ID.
-- **Cold/warm behavior:** First query after idle could be slower; a lightweight **health check** kept the path warm during demos.
 - **Tuning knobs via env:** `K` (Top-K), chunk size/overlap, index name/collection, and max context tokens were **Lambda env vars** so I could tune without redeploys.
 - **Timeouts & memory:** Ingest memory sized for batch embeddings; Query balanced latency vs. cost with short timeouts and reserved concurrency kept low.
 - **Retries/backoff:** Exponential backoff on AOSS 429/5xx and Bedrock throttles; simple circuit-break to fail fast when upstreams were unhealthy.
-- **Logging/metrics:** Structured CloudWatch logs for both Lambdas: `request_id`, `latency_ms`, `k`, `hit_count`, `tokens_in/out`, and error codes; alarms on error rate and p95 latency.
 
 ### What worked well
 - **Retrieval quality:** Once chunk size/overlap were dialed in, **Top-K ≈ 8** returned consistently relevant context for prompts.

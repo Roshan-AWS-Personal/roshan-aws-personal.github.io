@@ -6,12 +6,11 @@ permalink: /ai-kb/
 
 ## Table of Contents
 - [Introduction](/ai-kb/01-introduction)
-- [Infrastructure as Code](/ai-kb/02-infrastructure-as-code)
-- [Retrieval v1: OpenSearch Serverless](/ai-kb/03-retrieval-v1-opensearch)
-- [Cost Pivot: FAISS on S3](/ai-kb/04-cost-pivot-faiss-s3)
-- [Models & Throttling](/ai-kb/05-models-and-throttling)
-- [Integration with Project 1](/ai-kb/06-integration-with-project-1)
-- [Conclusion & Next Steps](/ai-kb/07-conclusion-next-steps)
+- [Architecture: Initial Plan](/ai-kb/02-architecture-initial-plan)
+- [Infrastructure as Code & GitHub OIDC](/ai-kb/03-infrastructure-as-code-github-oidc)
+- [Retrieval v1: OpenSearch Serverless](/ai-kb/04-retrieval-v1)
+- [Retrieval v2: FAISS on S3](/ai-kb/05-retrieval-v2)
+- [Models & Throttling](/ai-kb/06-models-and-throttling)
 
 ------
 

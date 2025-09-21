@@ -5,10 +5,7 @@ title: "Introduction"
 
 Hello and welcome to my second project! Building on the foundations of Project 1, this page documents my journey into **Retrieval-Augmented Generation (RAG)** using AWS. What began as a simple experiment with OpenSearch Serverless grew into a leaner, cost-aware design using **S3 + FAISS**, while keeping the same production-minded principles of Infrastructure as Code, CI/CD, and modular Terraform.
 
-The result: a lightweight knowledge base where users can upload documents and then *chat with them* — powered by **Amazon Bedrock** (Titan embeddings + Claude), with infrastructure deployed end-to-end via **Terraform + GitHub Actions**. Over time, I migrated this project into Project 1’s repository as reusable modules, creating one cohesive, end-to-end portfolio platform.
-
-> **What is RAG?**  
-> Retrieval-Augmented Generation is a pattern where a user’s query is first enriched with relevant context retrieved from a knowledge base (e.g., documents stored as embeddings), and only then passed to a large language model. Instead of asking the model to “know everything,” RAG grounds answers in your own data — reducing hallucinations, improving relevance, and controlling costs.
+The result is a lightweight knowledge base where users can upload documents and then chat with them. This is powered by **Amazon Bedrock** (Titan embeddings + Claude), with infrastructure deployed end-to-end via **Terraform + GitHub Actions**. Over time, I migrated this project into Project 1’s repository as reusable modules, creating one cohesive, end-to-end portfolio platform.
 
 In the chapters that follow, I trace how the prototype became a real system:
 

@@ -3,7 +3,7 @@ layout: default
 title: "GitHub OIDC: From Static Keys to Short-Lived Roles"
 ---
 
-When I kicked off Project 2, I refused to ship another CI pipeline that depended on static AWS keys. I wanted **Terraform in charge** like Project 1—but with CI assuming **short-lived credentials via GitHub OIDC**. The result is cleaner security, tighter environment isolation, and a smoother deploy loop.
+When I kicked off Project 2, I decided to improve the security of my CI/CD by removing the dependency on my static AWS keys. I wanted **Terraform in charge** like Project 1—but with CI assuming **short-lived credentials via GitHub OIDC**. The result is cleaner security, tighter environment isolation, and a smoother deploy loop.
 
 ### **Enter OIDC (keep Terraform in charge)**
 
@@ -12,7 +12,6 @@ So I kept `.tf` as the single source of truth and wired CI to assume roles at ru
 - **Ephemeral credentials only:** GitHub → OIDC → STS; nothing to rotate or leak.
 - **Per-env roles:** one role for `dev`, one for `prod`, same workflow.
 - **Guardrails first:** explicit **deny outside region** and **deny TF state deletes**.
-- **Deterministic config:** values like `chat_api_domain` flow from workflow → Terraform vars (never hard-coded in HTML/JS).
 
 ### Minimal IAM trust policy (repo-scoped, any branch)
 
