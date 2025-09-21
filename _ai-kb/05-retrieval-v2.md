@@ -5,22 +5,38 @@ title: "Cost Pivot: FAISS on S3 (Retrieval v2)"
 
 Although my first iteration of the project achieved the milestones I wanted, the **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. Merely keeping the indexes open in OpenSearch costed me 250 USD a week, which I sadly found out the hard way. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
 
+### What is FAISS?
+FAISS (Facebook AI Similarity Search) is an open-source library for fast vector similarity search—i.e., finding the most similar embeddings to a query vector among millions or billions of vectors. It’s written in C++ with Python bindings, supports CPU and GPU, and provides multiple index types that trade accuracy, speed, and memory.
+
 ### Trade-offs from v1 → why v2
 - **Idle spend vs. usage:** AOSS stays “on” even when nobody’s querying; FAISS + S3 costs almost nothing at rest.
 - **Ops surface:** Managed vector search is convenient, but S3 + FAISS is simpler to own for low-traffic demos.
-- **Rebuild tolerance:** My use case can **rebuild** indices on upload batches; I don’t need real-time incremental writes.
+- **Rebuild tolerance:** My use case can rebuild indices on upload batches; I don’t need real-time incremental writes.
 
 ### What changed (and what didn’t)
 - **Changed:** Vector store is now **FAISS files in S3**; Lambdas load/search locally.
-- **Changed:** Introduced an **atomic “latest” index pointer** and versioned folders for safe roll-forward/back.
 - **Stayed the same:** **Upload → Ingest → Chat** UI contract; **Titan** for embeddings; **Claude** for answers; event-driven ingestion via **S3 → SQS → Lambda**.
-- **Versioned publish:** write to `v00X/` first, then **copy** files to `latest/` to “flip” atomically.
 - **Manifest:** tiny JSON with `dimension`, `count`, `created_at`, and an `etag` so the **Query Lambda** can decide whether to refresh `/tmp` cache.
+
+### v2 diagrams
+<div align="center">
+  <figure class="figure-center">
+    <img src="{{ '/assets/ai-kb/updated-ingest-flow.png' | relative_url }}" alt="Retrieval v2 Ingest flow: S3 ObjectCreated triggers Lambda container (ingest) which calls Bedrock Titan for embeddings and writes FAISS files to S3 indexes/latest" />
+    <figcaption>Retrieval v2 — Ingest flow (Lambda containers + FAISS on S3)</figcaption>
+  </figure>
+</div>
+
+<div align="center">
+  <figure class="figure-center">
+    <img src="{{ '/assets/updated-query-flow.png' | relative_url }}" alt="Retrieval v2 Query flow: Lambda container (query) which reads FAISS files from S3 indexes/latest, embeds the question via Titan, and calls Claude Haiku; response returns JSON {answer, sources}" />
+    <figcaption>Retrieval v2 — Query flow (CloudFront → HTTP API → Lambda container → FAISS on S3)</figcaption>
+  </figure>
+</div>
+
 
 ### Ingestion path (build & publish index)
 - **Trigger:** S3 upload → SQS → **Ingest Lambda**.
 - **Work:** parse → chunk → embed with **Titan Text Embeddings v2 (1024-d)** → build a FAISS index in `/tmp` → upload to S3 (new version) → copy to `latest/`.
-- **Idempotence:** stable IDs like `doc_id#page#chunk` avoid duplicates when reprocessing.
 
 ```python
 # ingest_lambda.py (trimmed)
@@ -125,14 +141,10 @@ def knn(query_vec, k=8):
 
 ### Operational notes
 - **Config via env (no redeploy):** `INDEX_BUCKET`, `INDEX_PREFIX=indexes/latest/`, `TOP_K`, `EMBED_DIM=1024`, `MODEL_ID`, `MAX_TOKENS`.
-- **Atomic publish:** Write to `indexes/v00X/` then **copy** to `indexes/latest/` to flip versions safely; keep `manifest.json` for freshness checks.
 - **Cache policy:** Store `index.faiss` + `meta.jsonl` in **`/tmp`**; refresh only when `manifest` changes.
 - **Observability:** Log `k`, `hit_count`, `latency_ms`, `downloaded_bytes`, `index_version`, `tokens_in/out`; add p95/error-rate alarms.
 - **Retries/backoff:** Exponential backoff for S3 GET and Bedrock throttles; fail fast on repeated 5xx with clear error messages.
-- **Rollback:** Repoint `latest/` by copying from a previous `v00X/`—no code changes, minimal downtime.
 
 ### Key points
 - **Same UX, cheaper core:** Upload → Chat remains unchanged; retrieval is now **FAISS on S3**.
 - **Cost-efficient for demos:** **Idle ≈ $0**; costs scale with actual usage.
-- **Simple to operate:** Versioned indices, atomic pointer (`latest/`), and `/tmp` caching keep the system predictable.
-- **Room to grow:** Supports future **incremental updates**, streaming responses, and tighter least-privilege IAM without re-architecting.
