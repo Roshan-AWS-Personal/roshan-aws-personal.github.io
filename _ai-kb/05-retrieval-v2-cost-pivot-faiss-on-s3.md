@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Cost Pivot: FAISS on S3 (Retrieval v2)"
+title: "Retrieval v2: Cost Pivot: FAISS on S3"
 ---
 
 Although my first iteration of the project achieved the milestones I wanted, the **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. Merely keeping the indexes open in OpenSearch costed me 250 USD a week, which I sadly found out the hard way. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
@@ -21,14 +21,14 @@ FAISS (Facebook AI Similarity Search) is an open-source library for fast vector 
 ### v2 diagrams
 <div align="center">
   <figure class="figure-center">
-    <img src="{{ '/assets/ai-kb/updated-ingest-flow.png' | relative_url }}" alt="Retrieval v2 Ingest flow: S3 ObjectCreated triggers Lambda container (ingest) which calls Bedrock Titan for embeddings and writes FAISS files to S3 indexes/latest" />
+    <img src="{{ '/assets/images/updated-ingest-flow.png' | relative_url }}" alt="Retrieval v2 Ingest flow: S3 ObjectCreated triggers Lambda container (ingest) which calls Bedrock Titan for embeddings and writes FAISS files to S3 indexes/latest" />
     <figcaption>Retrieval v2 — Ingest flow (Lambda containers + FAISS on S3)</figcaption>
   </figure>
 </div>
 
 <div align="center">
   <figure class="figure-center">
-    <img src="{{ '/assets/updated-query-flow.png' | relative_url }}" alt="Retrieval v2 Query flow: Lambda container (query) which reads FAISS files from S3 indexes/latest, embeds the question via Titan, and calls Claude Haiku; response returns JSON {answer, sources}" />
+    <img src="{{ '/assets/images/updated-query-flow.png' | relative_url }}" alt="Retrieval v2 Query flow: Lambda container (query) which reads FAISS files from S3 indexes/latest, embeds the question via Titan, and calls Claude Haiku; response returns JSON {answer, sources}" />
     <figcaption>Retrieval v2 — Query flow (CloudFront → HTTP API → Lambda container → FAISS on S3)</figcaption>
   </figure>
 </div>

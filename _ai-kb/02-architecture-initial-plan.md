@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Initial Architecture & End-to-End Vision (v1: OpenSearch Serverless)"
+title: "Initial Architecture"
 ---
 Before explaining the initial architecture of my project, it is worth explaining what RAG is in the first place. RAG (Retrieval-Augmented Generation) is a pattern where a user’s query is first enriched with relevant context retrieved from a knowledge base (e.g., documents stored as embeddings), and only then passed to a large language model. Instead of asking the model to “know everything,” RAG grounds answers in your own data — reducing hallucinations, improving relevance, and controlling costs.
 
