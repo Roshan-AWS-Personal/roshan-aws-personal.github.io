@@ -14,10 +14,9 @@ permalink: /ai-kb/
 
 ------
 
+
+## Table of Contents
 {% assign chapters = site['ai-kb'] | sort: 'path' %}
 {% for chap in chapters %}
-<a id="{{ chap.slug }}"></a>
-## {{ chap.title }}
-{{ chap.content }}
-<hr/>
+- [{{ chap.title | default: chap.slug }}](#{{ chap.slug | slugify }})
 {% endfor %}
