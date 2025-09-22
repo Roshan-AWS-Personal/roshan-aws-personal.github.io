@@ -148,3 +148,5 @@ def knn(query_vec, k=8):
 ### Key points
 - **Same UX, cheaper core:** Upload → Chat remains unchanged; retrieval is now **FAISS on S3**.
 - **Cost-efficient for demos:** **Idle ≈ $0**; costs scale with actual usage.
+
+---

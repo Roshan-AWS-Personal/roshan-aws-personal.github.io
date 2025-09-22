@@ -81,3 +81,5 @@ def _chat(question: str, context: str) -> str:
                 return t.strip()
     return "I couldn't find the answer in the indexed context."
 ```
+
+---

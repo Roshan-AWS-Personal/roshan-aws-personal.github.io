@@ -256,4 +256,5 @@ Add a quick echo before configure-aws-credentials:
 - name: Echo selected role
   run: echo "ROLE_TO_ASSUME=${{ env.ROLE_TO_ASSUME }}"```
 
+---
 

@@ -30,3 +30,5 @@ With that in mind, here is the first design for our chat experience: **upload �
     <figcaption><strong>Figure 2. </strong> Query & Chat Flow — Client → API Gateway → Lambda (query) → Titan embed(q) → OpenSearch Top-K → Claude 3 with {q+ctx} → response to client.</figcaption>
   </figure>
 </div>
+
+---

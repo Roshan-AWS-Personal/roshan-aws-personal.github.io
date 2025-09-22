@@ -57,3 +57,4 @@ I started the RAG build on **Amazon OpenSearch Serverless (AOSS)** for vector se
 - **Retrieval quality:** Once chunk size/overlap were dialed in, **Top-K ≈ 8** returned consistently relevant context for prompts.
 - **Developer velocity:** Managed vector search meant **no shard/instance management** and fast iteration using familiar OpenSearch DSL.
 - **Operational simplicity:** S3 → SQS → Lambda handled bursts cleanly; idempotent indexing made re-runs safe.
+---
