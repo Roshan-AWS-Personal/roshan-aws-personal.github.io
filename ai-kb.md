@@ -4,6 +4,8 @@ title: "AI Knowledge Base (RAG)"
 permalink: /ai-kb/
 ---
 
+{% assign chapters = site['ai-kb'] | sort: 'path' %}
+
 ## Table of Contents
 - [Introduction](/ai-kb/01-introduction)
 - [Initial Architecture](/ai-kb/02-architecture-initial-plan)
@@ -14,11 +16,10 @@ permalink: /ai-kb/
 - [Integration with Project 1 (Upload → Chat)](/ai-kb/07-integration-with-project-1)
 - [Conclusion & Next Steps](/ai-kb/08-conclusion)
 
-------
+---
 
-{% assign chapters = site['ai-kb'] | sort: 'path' %}
 {% for chap in chapters %}
 <a id="{{ chap.slug }}"></a>
-## {{ chap.title }}
-  {{ chap.content | markdownify }}
+## **{{ chap.title }}**
+{{ chap.content | markdownify }}
 {% endfor %}
