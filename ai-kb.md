@@ -16,9 +16,9 @@ permalink: /ai-kb/
 
 ------
 
-{% assign chapters = site['ai-kb'] | sort: 'path' %}
+
 {% for chap in chapters %}
 <a id="{{ chap.slug }}"></a>
 ## {{ chap.title }}
-  {{ chap.content | markdownify }}
+{{ chap.content | markdownify }}
 {% endfor %}
