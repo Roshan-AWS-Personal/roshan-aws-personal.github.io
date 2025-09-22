@@ -15,3 +15,9 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+/* Smooth in-page anchor scrolling */
+html { scroll-behavior: smooth; }
+
+/* If you have a fixed header, keep anchors from hiding underneath it */
+[id] { scroll-margin-top: 80px; } /* adjust 80px to your header height */
