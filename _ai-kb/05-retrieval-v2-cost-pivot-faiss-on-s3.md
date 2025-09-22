@@ -22,14 +22,14 @@ FAISS (Facebook AI Similarity Search) is an open-source library for fast vector 
 <div align="center">
   <figure class="figure-center">
     <img src="{{ '/assets/images/updated-ingest-flow.png' | relative_url }}" alt="Retrieval v2 Ingest flow: S3 ObjectCreated triggers Lambda container (ingest) which calls Bedrock Titan for embeddings and writes FAISS files to S3 indexes/latest" />
-    <figcaption>Retrieval v2 — Ingest flow (Lambda containers + FAISS on S3)</figcaption>
+    <figcaption><strong>Figure 3. </strong>Retrieval v2 — Ingest flow (Lambda containers + FAISS on S3)</figcaption>
   </figure>
 </div>
 
 <div align="center">
   <figure class="figure-center">
     <img src="{{ '/assets/images/updated-query-flow.png' | relative_url }}" alt="Retrieval v2 Query flow: Lambda container (query) which reads FAISS files from S3 indexes/latest, embeds the question via Titan, and calls Claude Haiku; response returns JSON {answer, sources}" />
-    <figcaption>Retrieval v2 — Query flow (CloudFront → HTTP API → Lambda container → FAISS on S3)</figcaption>
+    <figcaption><strong>Figure 4. </strong>Retrieval v2 — Query flow (CloudFront → HTTP API → Lambda container → FAISS on S3)</figcaption>
   </figure>
 </div>
 
