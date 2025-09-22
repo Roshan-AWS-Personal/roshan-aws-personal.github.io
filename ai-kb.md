@@ -1,5 +1,7 @@
 ---
 layout: default
+title: "AI Knowledge Base (RAG)"
+permalink: /ai-kb/
 ---
 
 ## Table of Contents
