@@ -8,7 +8,7 @@ permalink: /ai-kb/
 
 ## Table of Contents
 {% for chap in chapters %}
-- [{{ chap.title }}](/ai-kb/#{{ chap.slug }})
+- [{{ chap.title }}]({{ page.url | relative_url }}#{{ chap.slug }})
 {% endfor %}
 
 ------
