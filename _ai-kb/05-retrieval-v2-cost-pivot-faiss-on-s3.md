@@ -3,7 +3,7 @@ layout: default
 title: "Retrieval v2: Cost Pivot: FAISS on S3"
 ---
 
-Although my first iteration of the project achieved the milestones I wanted, the **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. Merely keeping the indexes open in OpenSearch costed me 250 USD a week, which I sadly found out the hard way. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
+Although my first iteration of the project achieved the milestones I wanted, the **idle baseline cost** of OpenSearch Serverless didn’t fit a public portfolio app with **sporadic traffic**. Merely keeping the indexes open in OpenSearch costed me 250 USD weekly, which I sadly found out the hard way. I still wanted strong retrieval, but with **near-zero idle** and simpler ops. That led to a deliberate pivot: keep the same chat experience, but swap the vector backend for **FAISS stored in S3** and loaded by Lambda on demand.
 
 ### What is FAISS?
 FAISS (Facebook AI Similarity Search) is an open-source library for fast vector similarity search—i.e., finding the most similar embeddings to a query vector among millions or billions of vectors. It’s written in C++ with Python bindings, supports CPU and GPU, and provides multiple index types that trade accuracy, speed, and memory.
